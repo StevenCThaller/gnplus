@@ -1,0 +1,9 @@
+ormconfig.json
+.env
+node_modules/
+gptbiz/
+eventData/
+determinedTypes/
+build/
+build/*
+build/**/*

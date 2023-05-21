@@ -1,0 +1,87 @@
+{
+  "name": "gal-net-plus",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf build && tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon",
+    "test": "npm start test",
+    "prettier-watch": "onchange 'src/**/*.ts' -- prettier --write {{changed}}",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js -d ./build/data-source.js",
+    "migration:generate": "yarn typeorm migration:generate",
+    "migration:run": "yarn build && yarn typeorm migration:run",
+    "migration:revert": "yarn build && yarn typeorm migration:revert"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/test/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "./test/unit/lib/setup.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^9.4.1",
+    "@nestjs/config": "^2.3.2",
+    "@nestjs/core": "^9.4.1",
+    "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "^9.4.1",
+    "@types/figlet": "^1.5.6",
+    "chalk": "4.1.0",
+    "dotenv": "^16.0.3",
+    "figlet": "^1.6.0",
+    "helmet": "^7.0.0",
+    "jsonfile": "^6.1.0",
+    "microframework-w3tec": "^0.6.3",
+    "module-alias": "^2.2.2",
+    "mongoose": "^7.2.0",
+    "mysql2": "^3.3.1",
+    "nodemon": "^2.0.22",
+    "nps": "^5.10.0",
+    "nps-utils": "^1.7.0",
+    "pg": "^8.4.0",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^10.9.1",
+    "tsc": "^2.0.4",
+    "tsconfig-paths": "^4.2.0",
+    "tslint": "^6.1.3",
+    "typedi": "^0.10.0",
+    "typeorm": "0.3.16",
+    "typeorm-seeding": "^1.6.1",
+    "typeorm-typedi-extensions": "^0.4.1",
+    "typescript": "^5.0.4",
+    "winston": "^3.8.2",
+    "zeromq": "^6.0.0-beta.16",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^16.11.10",
+    "@types/reflect-metadata": "^0.1.0",
+    "@types/sequelize": "^4.28.15",
+    "@types/zeromq": "^5.2.2",
+    "jest": "^29.5.0",
+    "onchange": "^7.1.0",
+    "prettier": "^2.8.8",
+    "rxjs": "^7.8.1",
+    "ts-jest": "^29.1.0"
+  },
+  "_moduleAliases": {
+    "@datasource": "./build/data-source.js",
+    "@config": "./build/config",
+    "@api": "./build/api",
+    "@loaders": "./build/loaders",
+    "@stream": "./build/stream",
+    "@utils": "./build/utils"
+  }
+}

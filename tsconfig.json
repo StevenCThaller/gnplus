@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "CommonJS",   
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./src",
+    "rootDir": "src",
+    "sourceMap": true,
+    "outDir": "build",
+    "esModuleInterop": true,                             
+    "forceConsistentCasingInFileNames": true,      
+    "strict": true,                                      
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@datasource": ["data-source.ts"],
+      "@config/*": ["config/*"],
+      "@api/*": ["api/*"],
+      "@stream/*": ["stream/*"],
+      "@loaders/*": ["loaders/*"],
+      "@utils/*": ["utils/*"]
+    },
+    "noImplicitAny": true           
+  },
+  "include": ["src", "src/data-source.ts", "src/database/**/*.ts"],
+}
