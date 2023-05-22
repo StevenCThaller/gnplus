@@ -18,12 +18,12 @@ export default class SystemCoordinates extends BaseEntity {
   @OneToOne(() => StarSystem, (starSystem) => starSystem.systemCoordinates)
   public system!: StarSystem;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "float" })
   public x!: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "float" })
   public y!: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: "float" })
   public z!: number;
 }

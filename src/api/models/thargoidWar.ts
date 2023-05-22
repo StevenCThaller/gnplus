@@ -21,7 +21,7 @@ export default class ThargoidWar extends BaseEntity {
   @Column({ name: "war_progress", type: "float" })
   public warProgress!: number;
 
-  @Column({ name: "estimated_remaining_time" })
+  @Column({ name: "estimated_remaining_time", default: null, nullable: true })
   public estimatedRemainingTime!: string;
 
   @Column({ name: "success_state_reached" })
@@ -44,7 +44,7 @@ export default class ThargoidWar extends BaseEntity {
   @ManyToOne(
     () => ThargoidWarState,
     (thargoidWarState) => thargoidWarState.currentWars,
-    { cascade: ["insert"] }
+    { cascade: ["insert", "update"] }
   )
   @JoinColumn({ name: "current_state_id" })
   public currentState!: ThargoidWarState;
@@ -57,7 +57,7 @@ export default class ThargoidWar extends BaseEntity {
   @ManyToOne(
     () => ThargoidWarState,
     (thargoidWarState) => thargoidWarState.nextWarsIfFail,
-    { cascade: ["insert"] }
+    { cascade: ["insert", "update"] }
   )
   @JoinColumn({ name: "next_state_failure_id" })
   public nextStateFailure!: ThargoidWarState;
@@ -70,7 +70,7 @@ export default class ThargoidWar extends BaseEntity {
   @ManyToOne(
     () => ThargoidWarState,
     (thargoidWarState) => thargoidWarState.nextWarsIfSucceed,
-    { cascade: ["insert"] }
+    { cascade: ["insert", "update"] }
   )
   @JoinColumn({ name: "next_state_success_id" })
   public nextStateSuccess!: ThargoidWarState;

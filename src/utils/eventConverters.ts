@@ -129,13 +129,14 @@ type SystemConflictParams = {
   warType: string;
 };
 
-type ThargoidWarParams = {
+export type ThargoidWarParams = {
+  systemAddress: number;
   currentState: string;
   estimatedRemainingTime: string;
   nextStateFailure: string;
   nextStateSuccess: string;
   remainingPorts: number;
-  successStatusReached: boolean;
+  successStateReached: boolean;
   warProgress: number;
 };
 
@@ -258,12 +259,13 @@ export function toThargoidWar(
   if (!hasOwnProperty(data, "ThargoidWar")) return;
 
   return {
+    systemAddress: data.SystemAddress,
     currentState: data.ThargoidWar.CurrentState,
     estimatedRemainingTime: data.ThargoidWar.EstimatedRemainingTime,
     nextStateFailure: data.ThargoidWar.NextStateFailure,
     nextStateSuccess: data.ThargoidWar.NextStateSuccess,
     remainingPorts: data.ThargoidWar.RemainingPorts,
-    successStatusReached: data.ThargoidWar.SuccessStatusReached,
+    successStateReached: data.ThargoidWar.SuccessStateReached,
     warProgress: data.ThargoidWar.WarProgress
   };
 }

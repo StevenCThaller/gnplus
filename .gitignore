@@ -8,5 +8,4 @@ build/
 build/*
 build/**/*
 src/database/migrations/
-
 logs/
