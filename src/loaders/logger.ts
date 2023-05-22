@@ -1,5 +1,6 @@
 import winston from "winston";
 import config from "@config/index";
+import path from "path";
 
 const transports = [];
 if (process.env.NODE_ENV !== "development") {
@@ -14,6 +15,13 @@ if (process.env.NODE_ENV !== "development") {
     })
   );
 }
+
+transports.push(
+  new winston.transports.File({
+    level: "error",
+    filename: path.join(__dirname, "..", "..", "logs", "errors.log")
+  })
+);
 
 const LoggerInstance = winston.createLogger({
   level: config.logs.level,

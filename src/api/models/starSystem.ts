@@ -21,6 +21,7 @@ import PowerplayState from "./powerplayState";
 import Power from "./power";
 import ThargoidWar from "./thargoidWar";
 import SystemConflict from "./systemConflict";
+import Government from "./government";
 
 @Entity("star_systems")
 export default class StarSystem extends BaseEntity {
@@ -35,7 +36,12 @@ export default class StarSystem extends BaseEntity {
   @Column({ name: "system_name", unique: true, nullable: false })
   public systemName!: string;
 
-  @Column({ name: "population", nullable: true, unsigned: true })
+  @Column({
+    name: "population",
+    nullable: true,
+    type: "bigint",
+    unsigned: true
+  })
   public population?: number;
 
   /**
@@ -46,10 +52,19 @@ export default class StarSystem extends BaseEntity {
   @OneToOne(
     () => SystemCoordinates,
     (systemCoordinates) => systemCoordinates.system,
-    { cascade: ["insert"] }
+    { cascade: ["insert", "update"] }
   )
   @JoinColumn({ name: "system_coordinates_id" })
   public systemCoordinates!: SystemCoordinates;
+
+  /**
+   * Many to One with Government
+   */
+  @Column({ name: "government_id", nullable: true })
+  public governmentId?: number;
+  @ManyToOne(() => Government, (government) => government.systems)
+  @JoinColumn({ name: "government_id" })
+  public government!: Government;
 
   /**
    * Many to One with Allegiance
@@ -61,16 +76,17 @@ export default class StarSystem extends BaseEntity {
   public allegiance!: Allegiance;
 
   /**
-   * One to One with System Economy
+   * Many to One with System Economy
    */
   @Column({
     name: "system_economy_id",
     type: "bigint",
     unsigned: true,
+    default: null,
     nullable: true
   })
   public systemEconomyId!: number;
-  @OneToOne(() => SystemEconomy, (systemEconomy) => systemEconomy.system)
+  @ManyToOne(() => SystemEconomy, (systemEconomy) => systemEconomy.systems)
   @JoinColumn({ name: "system_economy_id" })
   public systemEconomy!: SystemEconomy;
 
@@ -79,23 +95,24 @@ export default class StarSystem extends BaseEntity {
    */
   @Column({
     name: "primary_faction_id",
-    nullable: true
+    type: "bigint",
+    unsigned: true,
+    nullable: true,
+    default: null
   })
   public primaryFactionId!: number;
-  @OneToOne(
-    () => PrimarySystemFaction,
-    (primarySystemFaction) => primarySystemFaction.system,
-    { cascade: ["insert"] }
-  )
+  @OneToOne(() => PrimarySystemFaction, { cascade: ["insert", "update"] })
   @JoinColumn({ name: "primary_faction_id" })
   public primaryFaction!: PrimarySystemFaction;
 
   /**
    * Many to One with Security Level
    */
-  @Column({ name: "security_level_id", nullable: true })
+  @Column({ name: "security_level_id", nullable: true, default: null })
   public securityLevelId!: number;
-  @ManyToOne(() => SecurityLevel, (securityLevel) => securityLevel.systems)
+  @ManyToOne(() => SecurityLevel, (securityLevel) => securityLevel.systems, {
+    cascade: ["insert", "update"]
+  })
   @JoinColumn({ name: "security_level_id" })
   public securityLevel!: SecurityLevel;
 
@@ -114,7 +131,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * Many to One with Powerplay State
    */
-  @Column({ name: "powerplay_state_id", nullable: true })
+  @Column({ name: "powerplay_state_id", nullable: true, default: null })
   public powerplayStateId!: number;
   @ManyToOne(() => PowerplayState, (powerplayState) => powerplayState.systems, {
     cascade: ["insert"]
@@ -125,7 +142,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * Many to Many with Powers
    */
-  @ManyToMany(() => Power, (power) => power.systems)
+  @ManyToMany(() => Power, (power) => power.systems, { cascade: ["insert"] })
   @JoinTable({
     name: "system_powers",
     joinColumn: {
@@ -145,7 +162,9 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to Many with System Conflicts
    */
-  @OneToMany(() => SystemConflict, (systemConflict) => systemConflict.system)
+  @OneToMany(() => SystemConflict, (systemConflict) => systemConflict.system, {
+    cascade: ["insert", "update"]
+  })
   public systemConflicts!: SystemConflict[];
 
   /**

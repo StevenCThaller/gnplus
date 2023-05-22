@@ -102,7 +102,7 @@ type ThargoidWar = {
   NextStateFailure: string;
   NextStateSuccess: string;
   RemainingPorts: number;
-  SuccessStatusReached: boolean;
+  SuccessStateReached: boolean;
   WarProgress: number;
 };
 

@@ -7,6 +7,7 @@ import { StationService } from "@api/services/station";
 import { Controller, Injectable } from "@nestjs/common";
 import LoggerInstance from "@loaders/logger";
 import DockedService from "./docked";
+import FSDJumpService from "./fsdjump";
 
 @Service()
 export default class StreamService {
@@ -48,7 +49,13 @@ export default class StreamService {
               new Date().getTime() - start
             );
             break;
-
+          case "FSDJump":
+            await Container.get(FSDJumpService).handleFSDJumpEvent(data);
+            this.logger.info(
+              "FSDJUMP EVENT HANDLED IN %s ms",
+              new Date().getTime() - start
+            );
+            break;
           default:
             // this.logger.info("EVENT: %s", event);
             break;

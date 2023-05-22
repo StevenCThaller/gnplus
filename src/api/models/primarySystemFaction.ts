@@ -14,37 +14,43 @@ import FactionState from "./factionState";
 
 @Entity("primary_system_factions")
 export default class PrimarySystemFaction extends BaseEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id!: number;
+
   /**
    * One to One with System
    */
-  @Column({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({
+    name: "system_address",
+    type: "bigint",
+    nullable: true,
+    unsigned: true
+  })
   public systemAddress!: number;
-  @OneToOne(() => StarSystem, (starSystem) => starSystem.primaryFaction)
-  @JoinColumn({ name: "system_address" })
-  public system!: StarSystem;
 
   /**
    * Many to One with Faction
    */
   @Column({ name: "faction_id" })
   public factionId!: number;
-  @ManyToOne(() => Faction, (faction) => faction.systemsWithPrimary)
+  @ManyToOne(() => Faction, (faction) => faction.systemsWithPrimary, {
+    cascade: ["insert", "update"]
+  })
   @JoinColumn({ name: "faction_id" })
   public faction!: Faction;
 
   /**
    * Many to One with Faction State
    */
-  @Column({ name: "faction_state_id" })
-  public factionStateId!: number;
+  @Column({ name: "faction_state_id", nullable: true })
+  public factionStateId?: number;
   @ManyToOne(
     () => FactionState,
-    (factionState) => factionState.systemsWithState
+    (factionState) => factionState.systemsWithState,
+    { cascade: ["insert", "update"] }
   )
   @JoinColumn({ name: "faction_state_id" })
-  public factionState!: FactionState;
+  public factionState?: FactionState;
 
   /**
    * Timestamps
