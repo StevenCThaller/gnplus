@@ -60,7 +60,9 @@ export default class Station extends BaseEntity {
   @JoinColumn({ name: "allegiance_id" })
   public allegiance?: Allegiance;
 
-  @ManyToOne(() => Government, (government) => government.stations)
+  @ManyToOne(() => Government, (government) => government.stations, {
+    cascade: ["insert"]
+  })
   @JoinColumn({ name: "government_id" })
   public government!: Government;
 

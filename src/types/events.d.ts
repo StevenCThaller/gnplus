@@ -6,7 +6,7 @@ type EventLandingPads = {
 
 type DockedLandingPads = EventLandingPads;
 
-type DockedStarPos = [number, number, number];
+type StarPosData = [number, number, number];
 
 type DockedStationFaction = {
   Name: string;
@@ -21,7 +21,7 @@ type DockedStationEconomy = {
 type DockedData = {
   DistFromStarLS: number;
   MarketID: number;
-  StarPos: DockedStarPos;
+  StarPos: StarPosData;
   StarSystem: string;
   StationEconomies: DockedStationEconomy[];
   StationEconomy: string;
@@ -53,5 +53,78 @@ type DockedData = {
   horizons?: boolean;
   odyssey?: boolean;
 };
+type EDDNEvent = DockedData | FSDJumpData;
 
-type EDDNEvent = DockedData;
+type RecoveringState = {
+  State: string;
+  Trend: number;
+};
+
+type PendingState = RecoveringState;
+
+type ActiveState = {
+  State: string;
+};
+
+type SystemFaction = {
+  Allegiance: string;
+  FactionState: string;
+  Government: string;
+  Happiness: string;
+  Influence: number;
+  Name: string;
+  RecoveringStates: RecoveringState[];
+  ActiveStates: ActiveState[];
+  PendingStates: PendingState[];
+};
+
+type PrimarySystemFaction = {
+  Name: string;
+  FactionState: string;
+};
+
+type ConflictFaction = {
+  Name: string;
+  Stake: string;
+  WonDays: number;
+};
+
+type SystemConflict = {
+  Faction1: ConflictFaction;
+  Faction2: ConflictFaction;
+  Status: string;
+  WarType: string;
+};
+
+type ThargoidWar = {
+  CurrentState: string;
+  EstimatedRemainingTime: string;
+  NextStateFailure: string;
+  NextStateSuccess: string;
+  RemainingPorts: number;
+  SuccessStatusReached: boolean;
+  WarProgress: number;
+};
+
+type FSDJumpData = {
+  Body: string;
+  BodyID: string;
+  BodyType: string;
+  Population: number;
+  StarPos: DockedStarPos;
+  StarSystem: string;
+  SystemAddress: number;
+  SystemAllegiance: string;
+  SystemEconomy: string;
+  SystemGovernment: string;
+  SystemSecondEconomy: string;
+  SystemSecurity: string;
+  event: string;
+  timestamp: string;
+  Factions?: SystemFaction[];
+  PowerplayState?: string;
+  Powers?: string[];
+  SystemFaction?: PrimarySystemFaction;
+  Conflicts?: SystemConflict[];
+  ThargoidWar: ThargoidWar;
+};

@@ -8,6 +8,7 @@ import {
   BaseEntity
 } from "typeorm";
 import Station from "./station";
+import SystemFaction from "./systemFaction";
 
 @Entity("governments")
 export default class Government extends BaseEntity {
@@ -27,4 +28,7 @@ export default class Government extends BaseEntity {
     cascade: ["insert"]
   })
   public stations!: Station[];
+
+  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.government)
+  public systemFactions!: SystemFaction[];
 }
