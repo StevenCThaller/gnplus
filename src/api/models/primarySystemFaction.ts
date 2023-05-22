@@ -16,6 +16,7 @@ import FactionState from "./factionState";
 export default class PrimarySystemFaction extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id!: number;
+
   /**
    * One to One with System
    */
