@@ -14,10 +14,12 @@ import FactionState from "./factionState";
 
 @Entity("primary_system_factions")
 export default class PrimarySystemFaction extends BaseEntity {
+  @PrimaryColumn()
+  public id!: number;
   /**
    * One to One with System
    */
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress!: number;
   @OneToOne(() => StarSystem, (starSystem) => starSystem.primaryFaction)
   @JoinColumn({ name: "system_address" })

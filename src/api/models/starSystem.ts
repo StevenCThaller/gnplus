@@ -64,10 +64,10 @@ export default class StarSystem extends BaseEntity {
    * One to One with System Economy
    */
   @Column({
-    name: "system_economy",
+    name: "system_economy_id",
     type: "bigint",
-    unique: true,
-    unsigned: true
+    unsigned: true,
+    nullable: true
   })
   public systemEconomyId!: number;
   @OneToOne(() => SystemEconomy, (systemEconomy) => systemEconomy.system)
@@ -77,7 +77,10 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to One with Primary System Faction
    */
-  @Column({ name: "primary_faction_id", type: "bigint", unsigned: true })
+  @Column({
+    name: "primary_faction_id",
+    nullable: true
+  })
   public primaryFactionId!: number;
   @OneToOne(
     () => PrimarySystemFaction,
@@ -90,7 +93,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * Many to One with Security Level
    */
-  @Column({ name: "security_level_id" })
+  @Column({ name: "security_level_id", nullable: true })
   public securityLevelId!: number;
   @ManyToOne(() => SecurityLevel, (securityLevel) => securityLevel.systems)
   @JoinColumn({ name: "security_level_id" })
@@ -111,7 +114,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * Many to One with Powerplay State
    */
-  @Column({ name: "powerplay_state_id" })
+  @Column({ name: "powerplay_state_id", nullable: true })
   public powerplayStateId!: number;
   @ManyToOne(() => PowerplayState, (powerplayState) => powerplayState.systems, {
     cascade: ["insert"]
