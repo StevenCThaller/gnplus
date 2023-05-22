@@ -57,7 +57,4 @@ fs.readdirSync(FSDJUMP_EVENT_DIR).forEach((file) => {
   const data = JSON.parse(
     fs.readFileSync(`${FSDJUMP_EVENT_DIR}/${file}`).toString()
   );
-  if (data.hasOwnProperty("Conflicts")) {
-    console.log(data);
-  }
 });

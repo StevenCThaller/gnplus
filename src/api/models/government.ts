@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import Station from "./station";
 import SystemFaction from "./systemFaction";
+import StarSystem from "./starSystem";
 
 @Entity("governments")
 export default class Government extends BaseEntity {
@@ -31,4 +32,7 @@ export default class Government extends BaseEntity {
 
   @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.government)
   public systemFactions!: SystemFaction[];
+
+  @OneToMany(() => StarSystem, (starSystem) => starSystem.government)
+  public systems!: StarSystem[];
 }

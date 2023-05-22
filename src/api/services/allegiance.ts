@@ -15,6 +15,10 @@ export default class AllegianceService extends BaseService<Allegiance> {
     super(Allegiance, dataSource);
   }
 
+  public async findByName(allegiance: string): Promise<Allegiance | null> {
+    return this.repository.findOne({ where: { allegiance } });
+  }
+
   public async findOneOrCreate(allegiance: string): Promise<Allegiance> {
     return await super._findOneOrCreate({ allegiance }, { allegiance });
   }

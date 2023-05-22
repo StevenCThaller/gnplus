@@ -17,7 +17,7 @@ export default class EconomyService extends BaseService<Economy> {
       { economyName },
       { economyName }
     );
-    if (!result.id) await this.repository.save(result);
+    // if (!result.id) await this.repository.save(result);
     return result;
   }
 }
