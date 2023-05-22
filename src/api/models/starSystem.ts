@@ -27,7 +27,6 @@ export default class StarSystem extends BaseEntity {
   @PrimaryColumn({
     name: "system_address",
     nullable: false,
-    unique: true,
     type: "bigint",
     unsigned: true
   })
@@ -78,7 +77,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to One with Primary System Faction
    */
-  @Column({ name: "primary_faction_id" })
+  @Column({ name: "primary_faction_id", type: "bigint", unsigned: true })
   public primaryFactionId!: number;
   @OneToOne(
     () => PrimarySystemFaction,
@@ -128,7 +127,7 @@ export default class StarSystem extends BaseEntity {
     name: "system_powers",
     joinColumn: {
       name: "system_address",
-      referencedColumnName: "system_address"
+      referencedColumnName: "systemAddress"
     },
     inverseJoinColumn: { name: "power_id", referencedColumnName: "id" }
   })

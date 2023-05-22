@@ -15,7 +15,7 @@ export default class RecoveringState extends BaseEntity {
   /**
    * Many to One with System Faction - Primary Key
    */
-  @PrimaryColumn({ name: "system_faction_id" })
+  @PrimaryColumn({ name: "system_faction_id", type: "bigint", unsigned: true })
   public systemFactionId!: number;
   @ManyToOne(
     () => SystemFaction,

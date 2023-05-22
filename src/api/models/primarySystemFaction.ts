@@ -15,7 +15,7 @@ import FactionState from "./factionState";
 @Entity("primary_system_factions")
 export default class PrimarySystemFaction extends BaseEntity {
   /**
-   * One to One with System - Primary Key
+   * One to One with System
    */
   @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress!: number;
