@@ -9,6 +9,8 @@ import {
 } from "typeorm";
 import Station from "./station";
 import StationEconomy from "./stationEconomy";
+import SystemEconomy from "./systemEconomy";
+import StarSystem from "./starSystem";
 
 @Entity("economies")
 export default class Economy extends BaseEntity {
@@ -29,4 +31,16 @@ export default class Economy extends BaseEntity {
 
   @OneToMany(() => StationEconomy, (stationEconomy) => stationEconomy.economy)
   public stations!: Station[];
+
+  @OneToMany(
+    () => SystemEconomy,
+    (systemEconomy) => systemEconomy.primaryEconomy
+  )
+  public systemsWithPrimary!: StarSystem[];
+
+  @OneToMany(
+    () => SystemEconomy,
+    (systemEconomy) => systemEconomy.secondaryEconomy
+  )
+  public systemsWithSecondary!: StarSystem[];
 }

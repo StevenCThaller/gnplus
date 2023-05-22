@@ -53,26 +53,11 @@ const typeData = getTypeData(FSDJUMP_TYPE_FILE);
 
 determineOptionals(typeData, allData);
 
-// fs.readdirSync(DOCKED_EVENT_DIR).forEach((file) => {
-//   const data = JSON.parse(
-//     fs.readFileSync(`${DOCKED_EVENT_DIR}/${file}`).toString()
-//   );
-//   if (!data.hasOwnProperty("LandingPads")) {
-//     console.log("NO LANDING PAD ON DOCKED", file);
-//   }
-//   // if(!data.hasOwnproperty())
-//   if (!data.hasOwnProperty("StationEconomy")) {
-//     console.log("NO ECONOMY ON DOCKED", file);
-//     // const matchingStation = allData.find(
-//     //   (station) =>
-//     //     station.MarketID === data.MarketID &&
-//     //     station.timestamp !== data.timestamp
-//     // );
-
-//     // if (matchingStation) {
-//     //   console.log("FOUND MATCHING STATION:", matchingStation);
-//     // } else {
-//     //   console.log("No other data to compare");
-//     // }
-//   }
-// });
+fs.readdirSync(FSDJUMP_EVENT_DIR).forEach((file) => {
+  const data = JSON.parse(
+    fs.readFileSync(`${FSDJUMP_EVENT_DIR}/${file}`).toString()
+  );
+  if (data.hasOwnProperty("Conflicts")) {
+    console.log(data);
+  }
+});

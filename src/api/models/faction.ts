@@ -7,6 +7,9 @@ import {
   BaseEntity
 } from "typeorm";
 import StationFaction from "./stationFaction";
+import PrimarySystemFaction from "./primarySystemFaction";
+import SystemFaction from "./systemFaction";
+import ConflictFaction from "./conflictFaction";
 
 @Entity("factions")
 export default class Faction extends BaseEntity {
@@ -18,4 +21,19 @@ export default class Faction extends BaseEntity {
 
   @OneToMany(() => StationFaction, (stationFaction) => stationFaction.faction)
   public stationFactions!: StationFaction[];
+
+  @OneToMany(
+    () => PrimarySystemFaction,
+    (primarySystemFaction) => primarySystemFaction.faction
+  )
+  public systemsWithPrimary!: PrimarySystemFaction[];
+
+  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.faction)
+  public systemFactions!: SystemFaction[];
+
+  @OneToMany(
+    () => ConflictFaction,
+    (conflictFaction) => conflictFaction.faction
+  )
+  public conflicts!: ConflictFaction;
 }

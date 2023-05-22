@@ -10,6 +10,7 @@ import Station from "./station";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import StarSystem from "./starSystem";
+import SystemFaction from "./systemFaction";
 
 @Entity("allegiances")
 export default class Allegiance extends BaseEntity {
@@ -29,4 +30,9 @@ export default class Allegiance extends BaseEntity {
     cascade: ["insert"]
   })
   public systems!: StarSystem[];
+
+  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.allegiance, {
+    cascade: ["insert"]
+  })
+  public systemFactions!: SystemFaction[];
 }

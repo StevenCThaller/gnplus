@@ -15,6 +15,9 @@ export default class SystemCoordinates extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id!: number;
 
+  @OneToOne(() => StarSystem, (starSystem) => starSystem.systemCoordinates)
+  public system!: StarSystem;
+
   @Column({ nullable: false })
   public x!: number;
 
@@ -23,7 +26,4 @@ export default class SystemCoordinates extends BaseEntity {
 
   @Column({ nullable: false })
   public z!: number;
-
-  @OneToOne((type) => StarSystem, (starSystem) => starSystem.systemCoordinates)
-  public systemAtCoordinates!: StarSystem;
 }
