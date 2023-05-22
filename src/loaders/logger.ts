@@ -15,6 +15,12 @@ if (process.env.NODE_ENV !== "development") {
   );
 }
 
+transports.push(
+  new winston.transports.File({
+    filename: "logs/errors.log"
+  })
+);
+
 const LoggerInstance = winston.createLogger({
   level: config.logs.level,
   levels: winston.config.npm.levels,
