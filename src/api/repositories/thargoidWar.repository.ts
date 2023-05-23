@@ -1,5 +1,5 @@
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import ThargoidWar from "@api/models/thargoidWar.model";
 import ThargoidWarState from "@api/models/thargoidWarState.model";

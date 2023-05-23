@@ -1,5 +1,5 @@
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import SystemEconomy from "@api/models/systemEconomy.model";
 import Economy from "@api/models/economy.model";

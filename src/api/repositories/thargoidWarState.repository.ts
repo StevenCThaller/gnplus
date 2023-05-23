@@ -1,6 +1,6 @@
 import Allegiance from "@api/models/allegiance.model";
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import ThargoidWarState from "@api/models/thargoidWarState.model";
 

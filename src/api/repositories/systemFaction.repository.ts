@@ -1,6 +1,6 @@
 import SystemFaction from "@api/models/systemFaction.model";
 import { Service } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import Allegiance from "@api/models/allegiance.model";
 import Government from "@api/models/government.model";

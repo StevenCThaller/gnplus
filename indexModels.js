@@ -17,6 +17,8 @@ const modelIndexContents = fs
     fileName = fileName.replace(".ts", "");
 
     const newLine = `export { default as ${modelName} } from "./${fileName}";
-    `;
+`;
     return contents + newLine;
   }, "");
+
+fs.writeFileSync(INDEX_PATH, modelIndexContents);

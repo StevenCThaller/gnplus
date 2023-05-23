@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { DataSource, EntityManager } from "typeorm";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import SecurityLevel from "@api/models/securityLevel.model";
 
 @Service()

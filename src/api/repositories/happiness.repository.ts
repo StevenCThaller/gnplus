@@ -1,6 +1,6 @@
 import HappinessLevel from "@api/models/happiness.model";
 import { Service } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()

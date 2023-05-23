@@ -1,6 +1,6 @@
 import Allegiance from "@api/models/allegiance.model";
 import { Service, Inject } from "typedi";
-import BaseService, { RepoManager } from ".";
+import BaseService, { RepoManager } from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()

@@ -1,6 +1,6 @@
 import StarSystem from "@api/models/starSystem.model";
 import { Service } from "typedi";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import { BaseEntity, DataSource, EntityManager } from "typeorm";
 import SystemCoordinates from "@api/models/systemCoordinates.model";
 import Allegiance from "@api/models/allegiance.model";

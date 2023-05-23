@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { DataSource, EntityManager } from "typeorm";
-import BaseService from ".";
+import BaseService from "./base.repository";
 import PrimarySystemFaction from "@api/models/primarySystemFaction.model";
 import Faction from "@api/models/faction.model";
 import FactionState from "@api/models/factionState.model";

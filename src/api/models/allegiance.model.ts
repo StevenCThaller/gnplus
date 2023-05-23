@@ -7,8 +7,6 @@ import {
   BaseEntity
 } from "typeorm";
 import Station from "./station.model";
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import StarSystem from "./starSystem.model";
 import SystemFaction from "./systemFaction.model";
 
