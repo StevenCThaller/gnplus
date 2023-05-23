@@ -1,7 +1,7 @@
-import Allegiance from "@api/models/allegiance";
-import Government from "@api/models/government";
-import AllegianceService from "@api/services/allegiance";
-import { StationService } from "@api/services/station";
+import Allegiance from "@api/models/allegiance.model";
+import Government from "@api/models/government.model";
+import AllegianceRepository from "@api/repositories/allegiance";
+import { StationRepository } from "@api/repositories/station";
 import { All } from "@nestjs/common";
 import { Service, Inject } from "typedi";
 import {
@@ -27,30 +27,30 @@ import {
   toSystemCoordinates
 } from "@utils/eventConverters";
 import { Logger } from "winston";
-import GovernmentService from "@api/services/government";
-import StationType from "@api/models/stationType";
-import StationTypeService from "@api/services/stationType";
-import LandingPadConfig from "@api/models/landingPadConfig";
-import LandingPadConfigService from "@api/services/landingPadConfig";
-import SystemCoordinates from "@api/models/systemCoordinates";
-import SystemCoordinatesService from "@api/services/systemCoordinates";
-import Station from "@api/models/station";
-import StarSystemService from "@api/services/starSystem";
-import StarSystem from "@api/models/starSystem";
-import StationState from "@api/models/stationState";
-import StationStateService from "@api/services/stationState";
-import StationEconomy from "@api/models/stationEconomy";
-import Economy from "@api/models/economy";
-import EconomyService from "@api/services/economy";
-import StationEconomyService from "@api/services/stationEconomy";
-import ServiceOffered from "@api/models/serviceOffered";
-import ServiceOfferedService from "@api/services/serviceOffered";
-import FactionState from "@api/models/factionState";
-import Faction from "@api/models/faction";
-import FactionService from "@api/services/faction";
-import FactionStateService from "@api/services/factionState";
-import StationFaction from "@api/models/stationFaction";
-import StationFactionService from "@api/services/stationFaction";
+import GovernmentRepository from "@api/repositories/government";
+import StationType from "@api/models/stationType.model";
+import StationTypeRepository from "@api/repositories/stationType";
+import LandingPadConfig from "@api/models/landingPadConfig.model";
+import LandingPadConfigRepository from "@api/repositories/landingPadConfig";
+import SystemCoordinates from "@api/models/systemCoordinates.model";
+import SystemCoordinatesRepository from "@api/repositories/systemCoordinates";
+import Station from "@api/models/station.model";
+import StarSystemRepository from "@api/repositories/starSystem";
+import StarSystem from "@api/models/starSystem.model";
+import StationState from "@api/models/stationState.model";
+import StationStateRepository from "@api/repositories/stationState";
+import StationEconomy from "@api/models/stationEconomy.model";
+import Economy from "@api/models/economy.model";
+import EconomyRepository from "@api/repositories/economy";
+import StationEconomyRepository from "@api/repositories/stationEconomy";
+import ServiceOffered from "@api/models/serviceOffered.model";
+import ServiceOfferedRepository from "@api/repositories/serviceOffered";
+import FactionState from "@api/models/factionState.model";
+import Faction from "@api/models/faction.model";
+import FactionRepository from "@api/repositories/faction";
+import FactionStateRepository from "@api/repositories/factionState";
+import StationFaction from "@api/models/stationFaction.model";
+import StationFactionRepository from "@api/repositories/stationFaction";
 
 interface IDockedService {
   handleDockedEvent: (data: DockedData) => Promise<void>;
@@ -81,7 +81,7 @@ export default class DockedService implements IDockedService {
     const coords = await this.findOrCreateSystemCoordinates(data);
 
     params.systemCoordinates = coords.id as number;
-    const repo = new StarSystemService(this.manager || this.dataSource);
+    const repo = new StarSystemRepository(this.manager || this.dataSource);
     const { systemAddress, systemName } = params;
     const starSystem = await repo.findOneOrCreateBase(
       systemAddress,
@@ -97,7 +97,9 @@ export default class DockedService implements IDockedService {
   ): Promise<SystemCoordinates> {
     const params = toSystemCoordinates(data);
     if (!params) throw "no";
-    const repo = new SystemCoordinatesService(this.manager || this.dataSource);
+    const repo = new SystemCoordinatesRepository(
+      this.manager || this.dataSource
+    );
     const { x, y, z } = params;
     return repo.findOneOrCreate(x, y, z);
   }
@@ -111,7 +113,7 @@ export default class DockedService implements IDockedService {
     const landingPads = await this.findOrCreateLandingPadConfig(data);
     const stationState = await this.findOrCreateStationState(data);
 
-    const repo = new StationService(this.manager || this.dataSource);
+    const repo = new StationRepository(this.manager || this.dataSource);
     const {
       systemAddress,
       marketId,
@@ -202,7 +204,7 @@ export default class DockedService implements IDockedService {
       );
     }
 
-    const repo = new StationFactionService(this.manager || this.dataSource);
+    const repo = new StationFactionRepository(this.manager || this.dataSource);
     const stationFaction = await repo.findOneAndUpdate(
       data.MarketID,
       faction.id,
@@ -221,12 +223,12 @@ export default class DockedService implements IDockedService {
   private async findOrCreateFactionState(
     factionState: string
   ): Promise<FactionState> {
-    const repo = new FactionStateService(this.manager || this.dataSource);
+    const repo = new FactionStateRepository(this.manager || this.dataSource);
     return repo.findOneOrCreate(factionState);
   }
 
   private async findOrCreateFaction(faction: string): Promise<Faction> {
-    const repo = new FactionService(this.manager || this.dataSource);
+    const repo = new FactionRepository(this.manager || this.dataSource);
     return repo.findOneOrCreate(faction);
   }
 
@@ -235,7 +237,7 @@ export default class DockedService implements IDockedService {
   ): Promise<StationEconomy[]> {
     const stationEconomiesParamArr: StationEconomyParams[] =
       toStationEconomies(data);
-    const repo = new StationEconomyService(this.manager || this.dataSource);
+    const repo = new StationEconomyRepository(this.manager || this.dataSource);
     const outputArr: StationEconomy[] = [];
     for (const stationEconomyParams of stationEconomiesParamArr) {
       const economy = await this.findOrCreateEconomy(
@@ -261,7 +263,7 @@ export default class DockedService implements IDockedService {
   private async findOrCreateEconomy(
     economyParams: EconomyParams
   ): Promise<Economy> {
-    const repo = new EconomyService(this.manager || this.dataSource);
+    const repo = new EconomyRepository(this.manager || this.dataSource);
     const economy = await repo.findOneOrCreate(economyParams.economyName);
     if (economy.id) return economy;
     await repo.save(economy);
@@ -273,7 +275,7 @@ export default class DockedService implements IDockedService {
     const economyNames = toEconomies(data);
 
     if (!economyNames.length) return economies;
-    const repo = new EconomyService(this.manager || this.dataSource);
+    const repo = new EconomyRepository(this.manager || this.dataSource);
     for (const economyName of economyNames) {
       const economy = await repo.findOneOrCreate(economyName);
       economies.push(economy);
@@ -284,7 +286,7 @@ export default class DockedService implements IDockedService {
 
   private findOrCreateStationState(data: DockedData): Promise<StationState> {
     const params = toStationState(data);
-    const repo = new StationStateService(this.manager || this.dataSource);
+    const repo = new StationStateRepository(this.manager || this.dataSource);
     return repo.findOneOrCreate(params);
   }
 
@@ -300,7 +302,7 @@ export default class DockedService implements IDockedService {
     const allegianceParams = toAllegiance(data);
     if (allegianceParams) {
       // const repo = this.getRepo(Allegiance);
-      const repo = new AllegianceService(
+      const repo = new AllegianceRepository(
         this.manager ? this.manager : this.dataSource
       );
       const allegiance = await repo.findOneOrCreate(
@@ -314,7 +316,7 @@ export default class DockedService implements IDockedService {
   private async findOrCreateGovernment(data: DockedData): Promise<Government> {
     const governmentParams = toGovernment(data) as GovernmentParams;
     // if (governmentParams) {
-    const repo = new GovernmentService(this.manager || this.dataSource);
+    const repo = new GovernmentRepository(this.manager || this.dataSource);
     const government = await repo.findOneOrCreate(governmentParams.government);
     if (!government.id) await repo.save(government);
     return government;
@@ -325,7 +327,7 @@ export default class DockedService implements IDockedService {
     data: DockedData
   ): Promise<StationType> {
     const params = toStationType(data);
-    const repo = new StationTypeService(this.manager || this.dataSource);
+    const repo = new StationTypeRepository(this.manager || this.dataSource);
     return repo.findOneOrCreate(params);
   }
 
@@ -335,7 +337,9 @@ export default class DockedService implements IDockedService {
     const params = toLandingPadConfig(data);
     if (!params) return;
 
-    const repo = new LandingPadConfigService(this.manager || this.dataSource);
+    const repo = new LandingPadConfigRepository(
+      this.manager || this.dataSource
+    );
 
     return repo.findOneOrCreate(params.small, params.medium, params.large);
   }
@@ -344,7 +348,7 @@ export default class DockedService implements IDockedService {
     data: DockedData
   ): Promise<ServiceOffered[]> {
     if (!data.StationServices.length) return [];
-    const repo = new ServiceOfferedService(this.manager || this.dataSource);
+    const repo = new ServiceOfferedRepository(this.manager || this.dataSource);
     const output: ServiceOffered[] = [];
     for (const serviceParam of data.StationServices) {
       const service = await repo.findOneOrCreate(serviceParam);

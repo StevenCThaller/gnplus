@@ -3,11 +3,6 @@ import zlib from "zlib";
 import { Subscriber } from "zeromq";
 import { Logger } from "winston";
 import config from "@config/index";
-import { StationService } from "@api/services/station";
-import { Controller, Injectable } from "@nestjs/common";
-import LoggerInstance from "@loaders/logger";
-import DockedService from "./docked";
-import FSDJumpService from "./fsdjump";
 
 @Service()
 export default class StreamService {
@@ -37,24 +32,12 @@ export default class StreamService {
 
   public async listen(socket: Subscriber): Promise<void> {
     for await (const [src] of socket) {
-      const start = new Date().getTime();
-
       try {
         const [event, data] = this.extractDataFromSocketSource(src);
         switch (event) {
           case "Docked":
-            await Container.get(DockedService).handleDockedEvent(data);
-            this.logger.info(
-              "DOCKED EVENT HANDLED IN %s ms",
-              new Date().getTime() - start
-            );
             break;
           case "FSDJump":
-            await Container.get(FSDJumpService).handleFSDJumpEvent(data);
-            this.logger.info(
-              "FSDJUMP EVENT HANDLED IN %s ms",
-              new Date().getTime() - start
-            );
             break;
           default:
             // this.logger.info("EVENT: %s", event);

@@ -99,7 +99,7 @@ interface TrendingStateParams extends FactionStateParams {
 type RecoveringStateParams = TrendingStateParams;
 type PendingStateParams = TrendingStateParams;
 
-interface SystemFactionParams {
+export type SystemFactionParams = {
   allegiance: string;
   factionState: string;
   government: string;
@@ -109,7 +109,7 @@ interface SystemFactionParams {
   recoveringStates?: RecoveringStateParams[];
   activeStates?: ActiveStateParams[];
   pendingStates?: PendingStateParams[];
-}
+};
 
 interface PrimarySystemFaction {
   faction: string;
@@ -275,7 +275,7 @@ export function toSystemFactionArr(data: FSDJumpData): SystemFactionParams[] {
 
   return (
     data.Factions?.map(
-      (faction: SystemFaction): SystemFactionParams => ({
+      (faction: SystemFactionJump): SystemFactionParams => ({
         allegiance: faction.Allegiance,
         factionState: faction.FactionState,
         government: faction.Government,

@@ -101,4 +101,4 @@ function determinePropertyType(value) {
   if (isObject(value)) return "object";
 }
 
-createTypeOutline("fsdjump", FSDJUMP_EVENT_DIR);
+createTypeOutline("scan", SCAN_EVENT_DIR);

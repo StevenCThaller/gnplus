@@ -55,48 +55,46 @@ type DockedData = {
 };
 type EDDNEvent = DockedData | FSDJumpData;
 
-type RecoveringState = {
+type TrendingStateJump = {
   State: string;
   Trend: number;
 };
 
-type PendingState = RecoveringState;
-
-type ActiveState = {
+type ActiveStateJump = {
   State: string;
 };
 
-type SystemFaction = {
+type SystemFactionJump = {
   Allegiance: string;
   FactionState: string;
   Government: string;
   Happiness: string;
   Influence: number;
   Name: string;
-  RecoveringStates: RecoveringState[];
+  RecoveringStates: TrendingState[];
   ActiveStates: ActiveState[];
-  PendingStates: PendingState[];
+  PendingStates: TrendingState[];
 };
 
-type PrimarySystemFaction = {
+type PrimarySystemFactionJump = {
   Name: string;
   FactionState: string;
 };
 
-type ConflictFaction = {
+type ConflictFactionJump = {
   Name: string;
   Stake: string;
   WonDays: number;
 };
 
-type SystemConflict = {
+type SystemConflictJump = {
   Faction1: ConflictFaction;
   Faction2: ConflictFaction;
   Status: string;
   WarType: string;
 };
 
-type ThargoidWar = {
+type ThargoidWarJump = {
   CurrentState: string;
   EstimatedRemainingTime: string;
   NextStateFailure: string;
@@ -121,7 +119,7 @@ type FSDJumpData = {
   SystemSecurity: string;
   event: string;
   timestamp: string;
-  Factions?: SystemFaction[];
+  Factions?: SystemFactionJump[];
   PowerplayState?: string;
   Powers?: string[];
   SystemFaction?: PrimarySystemFaction;
