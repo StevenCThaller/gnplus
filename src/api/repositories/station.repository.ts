@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import Station from "@api/models/station.model";
 import { DataSource, EntityManager, Repository } from "typeorm";
-import BaseService from ".";
+import BaseRepository from "./base.repository";
 import Container, { Inject, Service } from "typedi";
 import { AppDataSource } from "@datasource";
 import ServiceOffered from "@api/models/serviceOffered.model";
@@ -9,7 +9,7 @@ import Government from "@api/models/government.model";
 import { Logger } from "winston";
 
 @Service()
-export class StationRepository extends BaseService<Station> {
+export default class StationRepository extends BaseRepository<Station> {
   constructor(protected dataSource: EntityManager | DataSource) {
     super(Station, dataSource);
   }

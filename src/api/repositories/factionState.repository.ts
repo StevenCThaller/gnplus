@@ -1,10 +1,10 @@
-import FactionState from "@api/models/factionState.model";
+import { FactionState } from "@api/models";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class FactionStateRepository extends BaseService<FactionState> {
+export default class FactionStateRepository extends BaseRepository<FactionState> {
   /**
    *
    */

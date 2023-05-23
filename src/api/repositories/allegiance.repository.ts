@@ -1,10 +1,10 @@
-import Allegiance from "@api/models/allegiance.model";
+import { Allegiance } from "@api/models";
 import { Service, Inject } from "typedi";
-import BaseService, { RepoManager } from "./base.repository";
+import BaseRepository, { RepoManager } from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class AllegianceRepository extends BaseService<Allegiance> {
+export default class AllegianceRepository extends BaseRepository<Allegiance> {
   /**
    *
    */

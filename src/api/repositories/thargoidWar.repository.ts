@@ -1,11 +1,11 @@
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import ThargoidWar from "@api/models/thargoidWar.model";
 import ThargoidWarState from "@api/models/thargoidWarState.model";
 
 @Service()
-export default class ThargoidWarRepository extends BaseService<ThargoidWar> {
+export default class ThargoidWarRepository extends BaseRepository<ThargoidWar> {
   /**
    *
    */
@@ -17,12 +17,21 @@ export default class ThargoidWarRepository extends BaseService<ThargoidWar> {
     thargoidWar: OmitBaseEntity<ThargoidWar>
   ): Promise<ThargoidWar> {
     const { systemAddress } = thargoidWar;
-    let record: ThargoidWar | null = await this.repository.findOne({
+    const record: ThargoidWar | null = await this.repository.findOne({
       where: { systemAddress }
     });
     if (!record) return this.repository.create(thargoidWar);
-    record = { ...record, ...thargoidWar } as ThargoidWar;
+
+    record.currentState = thargoidWar.currentState;
+    record.estimatedRemainingTime = thargoidWar.estimatedRemainingTime;
+    record.nextStateFailure = thargoidWar.nextStateFailure;
+    record.nextStateSuccess = thargoidWar.nextStateSuccess;
+    record.remainingPorts = thargoidWar.remainingPorts;
+    record.successStateReached = thargoidWar.successStateReached;
+    record.warProgress = thargoidWar.warProgress;
     await this.repository.save(record);
+    this.logger.info("RECORRRRD: %o", record);
+
     return record;
   }
 

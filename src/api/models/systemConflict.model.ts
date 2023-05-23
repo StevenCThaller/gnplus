@@ -20,21 +20,33 @@ export default class SystemConflict extends BaseEntity {
   /**
    * Many to One with Star System
    */
-  @Column({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({
+    name: "system_address",
+    type: "bigint",
+    unsigned: true,
+    nullable: true,
+    foreignKeyConstraintName: "system_address_system_conflict"
+  })
   public systemAddress?: number;
-  @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemConflicts)
+  @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemConflicts, {
+    createForeignKeyConstraints: false,
+    nullable: true
+  })
   @JoinColumn({ name: "system_address" })
   public system?: StarSystem;
 
   /**
    * One to One with First Conflict Faction
    */
-  @Column({ name: "faction_one_id" })
+  @Column({
+    name: "faction_one_id",
+    foreignKeyConstraintName: "system_conflict_faction_one"
+  })
   public factionOneId?: number;
   @OneToOne(
     () => ConflictFaction,
     (conflictFaction) => conflictFaction.factionOneInConflict,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false }
   )
   @JoinColumn({ name: "faction_one_id" })
   public factionOne?: ConflictFaction;
@@ -42,12 +54,15 @@ export default class SystemConflict extends BaseEntity {
   /**
    * One to One with Second Conflict Faction
    */
-  @Column({ name: "faction_two_id" })
+  @Column({
+    name: "faction_two_id",
+    foreignKeyConstraintName: "system_conflict_faction_two"
+  })
   public factionTwoId?: number;
   @OneToOne(
     () => ConflictFaction,
     (conflictFaction) => conflictFaction.factionTwoInConflict,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false }
   )
   @JoinColumn({ name: "faction_two_id" })
   public factionTwo?: ConflictFaction;
@@ -60,7 +75,7 @@ export default class SystemConflict extends BaseEntity {
   @ManyToOne(
     () => ConflictStatus,
     (conflictStatus) => conflictStatus.conflicts,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false }
   )
   @JoinColumn({ name: "conflict_status_id" })
   public conflictStatus?: ConflictStatus;
@@ -73,7 +88,7 @@ export default class SystemConflict extends BaseEntity {
   @ManyToOne(
     () => ConflictWarType,
     (conflictWarType) => conflictWarType.conflicts,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false }
   )
   @JoinColumn({ name: "war_type_id" })
   public warType?: ConflictWarType;

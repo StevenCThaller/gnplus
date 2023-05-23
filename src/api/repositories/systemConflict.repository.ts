@@ -1,10 +1,10 @@
 import SystemConflict from "@api/models/systemConflict.model";
 import { Service, Inject } from "typedi";
-import BaseService, { RepoManager } from "./base.repository";
+import BaseRepository, { RepoManager } from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class SystemConflictRepository extends BaseService<SystemConflict> {
+export default class SystemConflictRepository extends BaseRepository<SystemConflict> {
   /**
    *
    */
@@ -25,8 +25,9 @@ export default class SystemConflictRepository extends BaseService<SystemConflict
 
     if (!record) return this.repository.create(systemConflict);
 
-    record = { ...record, ...systemConflict } as SystemConflict;
-    await this.repository.save({ ...record, ...systemConflict });
+    record.conflictStatus = systemConflict.conflictStatus;
+    record.warType = systemConflict.warType;
+    await this.repository.save(record);
     return record;
   }
 }

@@ -44,6 +44,7 @@ export default abstract class PoliticalHandler<T>
   public async handleEvent(data: T): Promise<void> {
     return this.dataSource.transaction(async (manager: EntityManager) => {
       this.manager = manager;
+
       await this.processEventData(data);
     });
   }
@@ -52,7 +53,7 @@ export default abstract class PoliticalHandler<T>
    *
    * @param {T} data - Event message from EDDN listener.
    */
-  public async processEventData(data: T): Promise<void> {}
+  public async processEventData(data: T): Promise<any> {}
 
   /**
    *
@@ -78,6 +79,7 @@ export default abstract class PoliticalHandler<T>
     economy: string
   ): Promise<Economy | undefined> {
     if (!economy) return;
+    if (!economy.startsWith("$economy_")) economy = `$economy_${economy};`;
     const repo: EconomyRepository = this.getRepo(EconomyRepository);
     const record: Economy = await repo.findOneOrCreate(economy);
     if (!record.hasId()) await repo.save(record);
@@ -109,9 +111,7 @@ export default abstract class PoliticalHandler<T>
   ): Promise<FactionState | undefined> {
     if (!factionState) return;
     const repo: FactionStateRepository = this.getRepo(FactionStateRepository);
-    const record: FactionState = await this.getRepo(
-      FactionStateRepository
-    ).findOneOrCreate(factionState);
+    const record: FactionState = await repo.findOneOrCreate(factionState);
     if (!record.hasId()) await repo.save(record);
     return record;
   }
@@ -125,6 +125,8 @@ export default abstract class PoliticalHandler<T>
     government: string
   ): Promise<Government | undefined> {
     if (!government) return;
+    if (!government.startsWith("$government_"))
+      government = `$government_${government};`;
     const repo: GovernmentRepository = this.getRepo(GovernmentRepository);
     const record: Government = await repo.findOneOrCreate(government);
     if (!record.hasId()) await repo.save(record);

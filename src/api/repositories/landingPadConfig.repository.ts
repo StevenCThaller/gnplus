@@ -1,10 +1,10 @@
 import LandingPadConfig from "@api/models/landingPadConfig.model";
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class LandingPadConfigRepository extends BaseService<LandingPadConfig> {
+export default class LandingPadConfigRepository extends BaseRepository<LandingPadConfig> {
   /**
    *
    */

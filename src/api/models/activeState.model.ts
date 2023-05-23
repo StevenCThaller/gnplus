@@ -11,9 +11,9 @@ import {
 import SystemFaction from "./systemFaction.model";
 import FactionState from "./factionState.model";
 
-@Entity("pending_states")
+@Entity("active_states")
 @Index(["systemFactionId", "factionStateId"])
-export default class PendingState extends BaseEntity {
+export default class ActiveState extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id?: number;
   /**
@@ -24,12 +24,12 @@ export default class PendingState extends BaseEntity {
     type: "bigint",
     unsigned: true,
     nullable: true,
-    foreignKeyConstraintName: "pending_state_system_faction"
+    foreignKeyConstraintName: "active_state_system_faction"
   })
   public systemFactionId?: number;
   @ManyToOne(
     () => SystemFaction,
-    (systemFaction) => systemFaction.pendingStates,
+    (systemFaction) => systemFaction.activeStates,
     { cascade: ["insert"], createForeignKeyConstraints: false, nullable: true }
   )
   @JoinColumn({ name: "system_faction_id" })
@@ -40,7 +40,7 @@ export default class PendingState extends BaseEntity {
    */
   @Column({
     name: "faction_state_id",
-    foreignKeyConstraintName: "pending_state_faction_state",
+    foreignKeyConstraintName: "active_state_faction_state",
     nullable: true
   })
   public factionStateId?: number;
@@ -51,10 +51,4 @@ export default class PendingState extends BaseEntity {
   )
   @JoinColumn({ name: "faction_state_id" })
   public factionState?: FactionState;
-
-  /**
-   * Trend
-   */
-  @Column({ type: "float" })
-  public trend?: number;
 }

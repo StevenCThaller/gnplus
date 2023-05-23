@@ -1,10 +1,10 @@
 import Government from "@api/models/government.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class GovernmentRepository extends BaseService<Government> {
+export default class GovernmentRepository extends BaseRepository<Government> {
   /**
    *
    */

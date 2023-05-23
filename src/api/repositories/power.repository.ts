@@ -1,10 +1,10 @@
 import Power from "@api/models/power.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class PowerRepository extends BaseService<Power> {
+export default class PowerRepository extends BaseRepository<Power> {
   /**
    *
    */

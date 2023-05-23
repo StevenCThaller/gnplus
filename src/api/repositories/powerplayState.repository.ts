@@ -1,10 +1,10 @@
 import PowerplayState from "@api/models/powerplayState.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class PowerplayStateRepository extends BaseService<PowerplayState> {
+export default class PowerplayStateRepository extends BaseRepository<PowerplayState> {
   /**
    *
    */

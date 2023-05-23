@@ -14,10 +14,11 @@ import Allegiance from "./allegiance.model";
 import FactionState from "./factionState.model";
 import StarSystem from "./starSystem.model";
 import Government from "./government.model";
-import HappinessLevel from "./happiness.model";
 import Faction from "./faction.model";
 import PendingState from "./pendingState.model";
 import RecoveringState from "./recoveringState.model";
+import HappinessLevel from "./happinessLevel.model";
+import ActiveState from "./activeState.model";
 
 @Entity("system_factions")
 @Index(["systemAddress", "factionId"])
@@ -32,10 +33,15 @@ export default class SystemFaction extends BaseEntity {
     name: "system_address",
     type: "bigint",
     unsigned: true,
-    nullable: true
+    nullable: true,
+    foreignKeyConstraintName: "system_address_system_faction"
   })
   public systemAddress?: number;
-  @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemFactions)
+  @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemFactions, {
+    nullable: true,
+    createForeignKeyConstraints: false
+  })
+  @JoinColumn({ name: "system_address" })
   public system?: StarSystem;
   /**
    * Many to One with Faction
@@ -84,32 +90,22 @@ export default class SystemFaction extends BaseEntity {
   public government?: Government;
 
   /**
-   * Many to One with Happiness
+   * Many to One with HappinessLevel
    */
-  @Column({ name: "happiness_id", nullable: false })
-  public happinessId?: number;
+  @Column({ name: "happiness_level_id", nullable: false })
+  public happinessLevelId?: number;
   @ManyToOne(
     () => HappinessLevel,
-    (happinessLevel) => happinessLevel.systemFactions,
-    { cascade: ["insert"] }
+    (happinessLevel) => happinessLevel.systemFactions
   )
-  @JoinColumn({ name: "happiness_id" })
-  public happiness?: HappinessLevel;
+  @JoinColumn({ name: "happiness_level_id" })
+  public happinessLevel?: HappinessLevel;
 
   /**
-   * Many to Many with FactionState - Active States
+   * One to Many with FactionState - Active States
    */
-  @ManyToMany(
-    () => FactionState,
-    (factionState) => factionState.systemFactions,
-    { cascade: ["insert"] }
-  )
-  @JoinTable({
-    name: "system_faction_active_states",
-    joinColumn: { name: "system_faction_id", referencedColumnName: "id" },
-    inverseJoinColumn: { name: "faction_state_id", referencedColumnName: "id" }
-  })
-  public activeStates?: FactionState[];
+  @OneToMany(() => ActiveState, (factionState) => factionState.systemFaction)
+  public activeStates?: ActiveState[];
 
   /**
    * One to Many with Pending States
@@ -125,7 +121,7 @@ export default class SystemFaction extends BaseEntity {
   @OneToMany(
     () => RecoveringState,
     (recoveringState) => recoveringState.systemFaction,
-    { cascade: ["insert", "update"] }
+    { cascade: ["insert"] }
   )
   public recoveringStates?: RecoveringState[];
 }

@@ -52,7 +52,7 @@ export default class StarSystem extends BaseEntity {
   @OneToOne(
     () => SystemCoordinates,
     (systemCoordinates) => systemCoordinates.system,
-    { cascade: ["insert", "update"] }
+    { cascade: ["insert"] }
   )
   @JoinColumn({ name: "system_coordinates_id" })
   public systemCoordinates?: SystemCoordinates;
@@ -101,7 +101,7 @@ export default class StarSystem extends BaseEntity {
     default: null
   })
   public primaryFactionId?: number;
-  @OneToOne(() => PrimarySystemFaction, { cascade: ["insert", "update"] })
+  @OneToOne(() => PrimarySystemFaction, { cascade: ["insert"] })
   @JoinColumn({ name: "primary_faction_id" })
   public primaryFaction?: PrimarySystemFaction;
 
@@ -125,7 +125,9 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to Many with System Factions
    */
-  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.system)
+  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.system, {
+    cascade: ["insert"]
+  })
   public systemFactions?: SystemFaction[];
 
   /**

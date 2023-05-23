@@ -5,27 +5,31 @@ import {
   BaseEntity,
   PrimaryGeneratedColumn,
   PrimaryColumn,
-  JoinColumn
+  JoinColumn,
+  Index
 } from "typeorm";
 import SystemFaction from "./systemFaction.model";
 import FactionState from "./factionState.model";
 
 @Entity("recovering_states")
+@Index(["systemFactionId", "factionState"])
 export default class RecoveringState extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  public id?: number;
   /**
    * Many to One with System Faction - Primary Key
    */
-  @PrimaryColumn({
+  @Column({
     name: "system_faction_id",
     type: "bigint",
     unsigned: true,
-    nullable: false
+    nullable: true
   })
   public systemFactionId?: number;
   @ManyToOne(
     () => SystemFaction,
     (systemFaction) => systemFaction.recoveringStates,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false, nullable: true }
   )
   @JoinColumn({ name: "system_faction_id" })
   public systemFaction?: SystemFaction;
@@ -33,12 +37,12 @@ export default class RecoveringState extends BaseEntity {
   /**
    * Many to One with Faction State - Primary Key
    */
-  @PrimaryColumn({ name: "faction_state_id", nullable: false })
+  @Column({ name: "faction_state_id", nullable: true })
   public factionStateId?: number;
   @ManyToOne(
     () => FactionState,
     (factionState) => factionState.recoveringSystemFactions,
-    { cascade: ["insert"] }
+    { cascade: ["insert"], createForeignKeyConstraints: false, nullable: true }
   )
   @JoinColumn({ name: "faction_state_id" })
   public factionState?: FactionState;

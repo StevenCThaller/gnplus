@@ -1,11 +1,11 @@
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import SystemEconomy from "@api/models/systemEconomy.model";
 import Economy from "@api/models/economy.model";
 
 @Service()
-export default class SystemEconomyRepository extends BaseService<SystemEconomy> {
+export default class SystemEconomyRepository extends BaseRepository<SystemEconomy> {
   /**
    *
    */

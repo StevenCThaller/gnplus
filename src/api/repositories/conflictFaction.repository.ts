@@ -1,11 +1,10 @@
-import Allegiance from "@api/models/allegiance.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
-import ConflictFaction from "@api/models/conflictFaction.model";
+import { ConflictFaction } from "@api/models";
 
 @Service()
-export default class ConflictFactionRepository extends BaseService<ConflictFaction> {
+export default class ConflictFactionRepository extends BaseRepository<ConflictFaction> {
   /**
    *
    */
@@ -23,7 +22,8 @@ export default class ConflictFactionRepository extends BaseService<ConflictFacti
 
     if (!record) return this.repository.create(conflictFaction);
 
-    record = { ...record, ...conflictFaction } as ConflictFaction;
+    record.stake = conflictFaction.stake;
+    record.wonDays = conflictFaction.wonDays;
 
     await this.repository.save(record);
     return record;

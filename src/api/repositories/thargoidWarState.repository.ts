@@ -1,11 +1,11 @@
 import Allegiance from "@api/models/allegiance.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 import ThargoidWarState from "@api/models/thargoidWarState.model";
 
 @Service()
-export default class ThargoidWarStateRepository extends BaseService<ThargoidWarState> {
+export default class ThargoidWarStateRepository extends BaseRepository<ThargoidWarState> {
   /**
    *
    */

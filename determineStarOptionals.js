@@ -1,18 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DOCKED_TYPE_FILE = path.join(__dirname, "determinedTypes", "docked.json");
-const DOCKED_EVENT_DIR = path.join(__dirname, "eventData", "docked");
-
-const SCAN_TYPE_FILE = path.join(__dirname, "determinedTypes", "scan.json");
+const STAR_TYPE_FILE = path.join(__dirname, "determinedTypes", "star.json");
 const SCAN_EVENT_DIR = path.join(__dirname, "eventData", "scan");
-
-const FSDJUMP_TYPE_FILE = path.join(
-  __dirname,
-  "determinedTypes",
-  "fsdjump.json"
-);
-const FSDJUMP_EVENT_DIR = path.join(__dirname, "eventData", "fsdjump");
 
 function determineOptionals(allTypeObj, data) {
   const breakdown = {
@@ -21,6 +11,7 @@ function determineOptionals(allTypeObj, data) {
   };
 
   data.forEach((obj) => {
+    if (!obj.hasOwnProperty("StarType")) return;
     const requiredProps = Object.keys(breakdown.required);
 
     requiredProps.forEach((prop) => {
@@ -49,7 +40,7 @@ function getTypeData(filePath) {
 }
 
 const allData = getAllData(SCAN_EVENT_DIR);
-const typeData = getTypeData(SCAN_TYPE_FILE);
+const typeData = getTypeData(STAR_TYPE_FILE);
 
 determineOptionals(typeData, allData);
 

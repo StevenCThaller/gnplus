@@ -6,7 +6,7 @@ export { default as Economy } from "./economy.model";
 export { default as Faction } from "./faction.model";
 export { default as FactionState } from "./factionState.model";
 export { default as Government } from "./government.model";
-export { default as Happiness } from "./happiness.model";
+export { default as HappinessLevel } from "./happinessLevel.model";
 export { default as LandingPadConfig } from "./landingPadConfig.model";
 export { default as PendingState } from "./pendingState.model";
 export { default as Power } from "./power.model";

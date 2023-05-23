@@ -3,6 +3,8 @@ import zlib from "zlib";
 import { Subscriber } from "zeromq";
 import { Logger } from "winston";
 import config from "@config/index";
+import FSDJumpHandler from "./fsdjump";
+import DockedService from "./docked";
 
 @Service()
 export default class StreamService {
@@ -35,10 +37,18 @@ export default class StreamService {
       try {
         const [event, data] = this.extractDataFromSocketSource(src);
         switch (event) {
-          case "Docked":
+          case "Docked": {
+            const start = new Date().getTime();
+            await Container.get(DockedService).handleDockedEvent(data);
+            this.logger.info("Docked: %s ms", new Date().getTime() - start);
             break;
-          case "FSDJump":
+          }
+          case "FSDJump": {
+            const start = new Date().getTime();
+            await Container.get(FSDJumpHandler).handleEvent(data);
+            this.logger.info("FSDJump: %s ms", new Date().getTime() - start);
             break;
+          }
           default:
             // this.logger.info("EVENT: %s", event);
             break;

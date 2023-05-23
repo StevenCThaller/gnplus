@@ -1,12 +1,12 @@
 import { Service } from "typedi";
 import { DataSource, EntityManager } from "typeorm";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import PrimarySystemFaction from "@api/models/primarySystemFaction.model";
 import Faction from "@api/models/faction.model";
 import FactionState from "@api/models/factionState.model";
 
 @Service()
-export default class PrimarySystemFactionRepository extends BaseService<PrimarySystemFaction> {
+export default class PrimarySystemFactionRepository extends BaseRepository<PrimarySystemFaction> {
   constructor(protected dataSource: EntityManager | DataSource) {
     super(PrimarySystemFaction, dataSource);
   }

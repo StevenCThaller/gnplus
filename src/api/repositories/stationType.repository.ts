@@ -1,10 +1,10 @@
 import StationType from "@api/models/stationType.model";
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class StationTypeRepository extends BaseService<StationType> {
+export default class StationTypeRepository extends BaseRepository<StationType> {
   /**
    *
    */

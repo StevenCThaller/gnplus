@@ -14,7 +14,7 @@ import { Logger } from "winston";
 
 export type RepoManager = DataSource | EntityManager;
 
-export default abstract class BaseService<T extends BaseEntity> {
+export default abstract class BaseRepository<T extends BaseEntity> {
   protected repository: Repository<T>;
   protected logger: Logger;
 
@@ -40,6 +40,7 @@ export default abstract class BaseService<T extends BaseEntity> {
       );
       this.logger.error("FIND: %o", findParams);
       this.logger.error("CREATE: %o", createParams);
+      this.logger.error("Error in question: %o", error);
       throw error;
     }
   }
@@ -53,6 +54,7 @@ export default abstract class BaseService<T extends BaseEntity> {
         "An error occurred when attempting to save the following entity: %o",
         entity
       );
+      this.logger.error("Error in question: %o", error);
       throw error;
     }
   }

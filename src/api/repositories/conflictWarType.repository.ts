@@ -1,10 +1,10 @@
-import ConflictWarType from "@api/models/conflictWarType.model";
+import { ConflictWarType } from "@api/models";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class ConflictWarTypeRepository extends BaseService<ConflictWarType> {
+export default class ConflictWarTypeRepository extends BaseRepository<ConflictWarType> {
   /**
    *
    */

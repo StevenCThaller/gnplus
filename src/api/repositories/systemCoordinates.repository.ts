@@ -1,10 +1,10 @@
 import SystemCoordinates from "@api/models/systemCoordinates.model";
 import { Service, Inject } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class SystemCoordinatesRepository extends BaseService<SystemCoordinates> {
+export default class SystemCoordinatesRepository extends BaseRepository<SystemCoordinates> {
   /**
    *
    */

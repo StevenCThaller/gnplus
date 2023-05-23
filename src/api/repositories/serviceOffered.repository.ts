@@ -1,10 +1,10 @@
 import ServiceOffered from "@api/models/serviceOffered.model";
 import { Service, Inject } from "typedi";
-import BaseService from ".";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class ServiceOfferedRepository extends BaseService<ServiceOffered> {
+export default class ServiceOfferedRepository extends BaseRepository<ServiceOffered> {
   /**
    *
    */

@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
+  BaseEntity,
   Column,
+  Entity,
   OneToMany,
-  BaseEntity
+  PrimaryGeneratedColumn
 } from "typeorm";
 import SystemFaction from "./systemFaction.model";
 
@@ -12,9 +12,12 @@ export default class HappinessLevel extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id?: number;
 
-  @Column()
-  public happiness?: string;
+  @Column({ name: "happiness_level", unique: true, nullable: false })
+  public happinessLevel?: string;
 
-  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.happiness)
+  @OneToMany(
+    () => SystemFaction,
+    (systemFaction) => systemFaction.happinessLevel
+  )
   public systemFactions?: SystemFaction[];
 }

@@ -47,7 +47,7 @@ export default class PrimarySystemFaction extends BaseEntity {
   @ManyToOne(
     () => FactionState,
     (factionState) => factionState.systemsWithState,
-    { cascade: ["insert", "update"] }
+    { cascade: ["insert"] }
   )
   @JoinColumn({ name: "faction_state_id" })
   public factionState?: FactionState;

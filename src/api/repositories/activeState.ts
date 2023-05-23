@@ -1,35 +1,34 @@
-import PendingState from "@api/models/pendingState.model";
+import ActiveState from "@api/models/activeState.model";
 import { Service } from "typedi";
 import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
 
 @Service()
-export default class PendingStateRepository extends BaseRepository<PendingState> {
+export default class ActiveStateRepository extends BaseRepository<ActiveState> {
   /**
    *
    */
   constructor(protected dataSource: EntityManager | DataSource) {
-    super(PendingState, dataSource);
+    super(ActiveState, dataSource);
   }
 
   public async findOrCreate(
-    pendingState: OmitBaseEntity<PendingState>
-  ): Promise<PendingState> {
-    const { systemFactionId, factionStateId, trend } = pendingState;
+    activeState: OmitBaseEntity<ActiveState>
+  ): Promise<ActiveState> {
+    const { systemFactionId, factionStateId } = activeState;
     return super._findOneOrCreate(
       { systemFactionId, factionStateId },
-      { systemFactionId, factionStateId, trend }
+      { systemFactionId, factionStateId }
     );
   }
 
   public async findOneOrCreate(
     systemFactionId: number,
-    factionStateId: number,
-    trend: number
-  ): Promise<PendingState> {
+    factionStateId: number
+  ): Promise<ActiveState> {
     return super._findOneOrCreate(
       { systemFactionId, factionStateId },
-      { systemFactionId, factionStateId, trend }
+      { systemFactionId, factionStateId }
     );
   }
 }

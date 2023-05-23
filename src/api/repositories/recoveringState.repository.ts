@@ -1,15 +1,11 @@
 import RecoveringState from "@api/models/recoveringState.model";
 import { Service } from "typedi";
-import BaseService from "./base.repository";
+import BaseRepository from "./base.repository";
 import { DataSource, EntityManager } from "typeorm";
-import Allegiance from "@api/models/allegiance.model";
-import Government from "@api/models/government.model";
 import FactionState from "@api/models/factionState.model";
-import Faction from "@api/models/faction.model";
-import HappinessLevel from "@api/models/happiness.model";
 
 @Service()
-export default class RecoveringStateRepository extends BaseService<RecoveringState> {
+export default class RecoveringStateRepository extends BaseRepository<RecoveringState> {
   /**
    *
    */
@@ -20,21 +16,21 @@ export default class RecoveringStateRepository extends BaseService<RecoveringSta
   public async findOrCreate(
     recoveringState: OmitBaseEntity<RecoveringState>
   ): Promise<RecoveringState> {
-    const { factionState, trend } = recoveringState;
+    const { systemFactionId, factionStateId, trend } = recoveringState;
     return super._findOneOrCreate(
-      { factionState: factionState?.id, trend },
-      { factionState, trend }
+      { systemFactionId, factionStateId },
+      { factionStateId, trend }
     );
   }
 
   public async findOneOrCreate(
     systemFactionId: number,
-    factionState: FactionState,
+    factionStateId: number,
     trend: number
   ): Promise<RecoveringState> {
     return super._findOneOrCreate(
-      { systemFactionId, factionState },
-      { systemFactionId, factionState, trend }
+      { systemFactionId, factionStateId },
+      { systemFactionId, factionStateId, trend }
     );
   }
 }

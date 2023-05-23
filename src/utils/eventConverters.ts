@@ -103,7 +103,7 @@ export type SystemFactionParams = {
   allegiance: string;
   factionState: string;
   government: string;
-  happiness: string;
+  happinessLevel: string;
   influence: number;
   faction: string;
   recoveringStates?: RecoveringStateParams[];
@@ -235,7 +235,7 @@ export function toConflicts(data: FSDJumpData): SystemConflictParams[] {
 
   return (
     data.Conflicts?.map(
-      (faction: SystemConflict): SystemConflictParams => ({
+      (faction: SystemConflictJump): SystemConflictParams => ({
         factionOne: {
           faction: faction.Faction1.Name,
           stake: faction.Faction1.Stake,
@@ -279,25 +279,25 @@ export function toSystemFactionArr(data: FSDJumpData): SystemFactionParams[] {
         allegiance: faction.Allegiance,
         factionState: faction.FactionState,
         government: faction.Government,
-        happiness: faction.Happiness,
+        happinessLevel: faction.Happiness,
         influence: faction.Influence,
         faction: faction.Name,
         recoveringStates:
           faction.RecoveringStates?.map(
-            (rs: RecoveringState): RecoveringStateParams => ({
+            (rs: TrendingStateJump): RecoveringStateParams => ({
               factionState: rs.State,
               trend: rs.Trend
             })
           ) || [],
         activeStates:
           faction.ActiveStates?.map(
-            (rs: ActiveState): ActiveStateParams => ({
+            (rs: ActiveStateJump): ActiveStateParams => ({
               factionState: rs.State
             })
           ) || [],
         pendingStates:
           faction.PendingStates?.map(
-            (rs: PendingState): PendingStateParams => ({
+            (rs: TrendingStateJump): PendingStateParams => ({
               factionState: rs.State,
               trend: rs.Trend
             })
