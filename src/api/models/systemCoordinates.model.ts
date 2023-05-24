@@ -10,7 +10,7 @@ import {
 import StarSystem from "./starSystem.model";
 
 @Entity("system_coordinates")
-@Index(["x", "y", "z"])
+@Index("position_coords_idx", ["x", "y", "z"], { unique: true })
 export default class SystemCoordinates extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id?: number;

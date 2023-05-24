@@ -22,6 +22,7 @@ import Power from "./power.model";
 import ThargoidWar from "./thargoidWar.model";
 import SystemConflict from "./systemConflict.model";
 import Government from "./government.model";
+import CelestialBody from "./celestialBody.model";
 
 @Entity("star_systems")
 export default class StarSystem extends BaseEntity {
@@ -168,6 +169,14 @@ export default class StarSystem extends BaseEntity {
     cascade: ["insert", "update"]
   })
   public systemConflicts?: SystemConflict[];
+
+  /**
+   * One to Many with Bodies
+   */
+  @OneToMany(() => CelestialBody, (body) => body.system, {
+    cascade: ["insert"]
+  })
+  public bodies?: CelestialBody[];
 
   /**
    * Timestamps

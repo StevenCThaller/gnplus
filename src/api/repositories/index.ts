@@ -1,5 +1,6 @@
 export { default as AllegianceRepository } from "./allegiance.repository";
 export { default as BaseRepository } from "./base.repository";
+export { default as BodyTypeRepository } from "./bodyType.repository";
 export { default as ConflictFactionRepository } from "./conflictFaction.repository";
 export { default as ConflictStatusRepository } from "./conflictStatus.repository";
 export { default as ConflictWarTypeRepository } from "./conflictWarType.repository";

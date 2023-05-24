@@ -1,5 +1,7 @@
 import {
   Allegiance,
+  BodyType,
+  CelestialBody,
   ConflictFaction,
   ConflictStatus,
   ConflictWarType,
@@ -25,6 +27,7 @@ import {
 import ActiveState from "@api/models/activeState.model";
 import {
   AllegianceRepository,
+  BodyTypeRepository,
   ConflictFactionRepository,
   ConflictStatusRepository,
   ConflictWarTypeRepository,
@@ -48,6 +51,7 @@ import {
   ThargoidWarStateRepository
 } from "@api/repositories";
 import ActiveStateRepository from "@api/repositories/activeState";
+import CelestialBodyRepository from "@api/repositories/celestialBody.repository";
 import PoliticalHandler from "@stream/base/politicalHandler";
 import { hasOwnProperty } from "@utils/prototypeHelpers";
 import { Inject, Service } from "typedi";
@@ -70,11 +74,18 @@ export default class FSDJumpHandler extends PoliticalHandler<FSDJumpData> {
   public async handleEvent(data: FSDJumpData): Promise<void> {
     return this.dataSource.transaction(async (manager: EntityManager) => {
       this.manager = manager;
+      await this.findOrCreateArrivalBody(data);
 
       await this.findOrCreateSystem(data);
     });
   }
 
+  /**
+   *
+   * @param systemFactionId
+   * @param activeState
+   * @returns
+   */
   public async findOrCreateActiveState(
     systemFactionId: number,
     activeState: string
@@ -111,6 +122,47 @@ export default class FSDJumpHandler extends PoliticalHandler<FSDJumpData> {
       output.push(record);
     }
     return output;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateArrivalBody(
+    data: FSDJumpData
+  ): Promise<CelestialBody> {
+    const repo: CelestialBodyRepository = this.getRepo(CelestialBodyRepository);
+    const bodyType: BodyType = await this.findOrCreateArrivalBodyType(
+      data.BodyType
+    );
+
+    const record: CelestialBody = await repo.findOneOrCreate(
+      data.BodyID,
+      data.SystemAddress,
+      data.Body,
+      0,
+      bodyType
+    );
+
+    // this.logger.info("Celestial body?: %o", record);
+
+    if (!record.createdAt) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param bodyType
+   * @returns
+   */
+  public async findOrCreateArrivalBodyType(
+    bodyType: string
+  ): Promise<BodyType> {
+    const repo: BodyTypeRepository = this.getRepo(BodyTypeRepository);
+    const record: BodyType = await repo.findOneOrCreate(bodyType);
+    if (!record.hasId()) await repo.save(record);
+    return record;
   }
 
   /**

@@ -1,4 +1,7 @@
 export { default as Allegiance } from "./allegiance.model";
+export { default as Barycenter } from "./barycenter.model";
+export { default as BodyType } from "./bodyType.model";
+export { default as CelestialBody } from "./celestialBody.model";
 export { default as ConflictFaction } from "./conflictFaction.model";
 export { default as ConflictStatus } from "./conflictStatus.model";
 export { default as ConflictWarType } from "./conflictWarType.model";
@@ -8,6 +11,7 @@ export { default as FactionState } from "./factionState.model";
 export { default as Government } from "./government.model";
 export { default as HappinessLevel } from "./happinessLevel.model";
 export { default as LandingPadConfig } from "./landingPadConfig.model";
+export { default as Orbit } from "./orbit.model";
 export { default as PendingState } from "./pendingState.model";
 export { default as Power } from "./power.model";
 export { default as PowerplayState } from "./powerplayState.model";

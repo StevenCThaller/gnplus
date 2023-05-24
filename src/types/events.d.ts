@@ -6,8 +6,6 @@ type EventLandingPads = {
 
 type DockedLandingPads = EventLandingPads;
 
-type StarPosData = [number, number, number];
-
 type DockedStationFaction = {
   Name: string;
   FactionState: string;
@@ -18,11 +16,11 @@ type DockedStationEconomy = {
   Proportion: number;
 };
 
-type DockedData = {
+type SystemCoordinatesParams = [number, number, number];
+
+type DockedData = BasicSystemData & {
   DistFromStarLS: number;
   MarketID: number;
-  StarPos: StarPosData;
-  StarSystem: string;
   StationEconomies: DockedStationEconomy[];
   StationEconomy: string;
   StationFaction: DockedStationFaction;
@@ -30,7 +28,6 @@ type DockedData = {
   StationName: string;
   StationServices: string[];
   StationType: string;
-  SystemAddress: number;
   event: string;
   timestamp: string;
   /* OPTIONALS */
@@ -104,14 +101,12 @@ type ThargoidWarJump = {
   WarProgress: number;
 };
 
-type FSDJumpData = {
+type FSDJumpData = BasicSystemData & {
   Body: string;
-  BodyID: string;
+  BodyID: number;
   BodyType: string;
+  DistanceFromArrivalLS: number;
   Population: number;
-  StarPos: DockedStarPos;
-  StarSystem: string;
-  SystemAddress: number;
   SystemAllegiance: string;
   SystemEconomy: string;
   SystemGovernment: string;
@@ -126,3 +121,143 @@ type FSDJumpData = {
   Conflicts?: SystemConflict[];
   ThargoidWar: ThargoidWar;
 };
+
+type AtmosphereCompositionData = {
+  Name: string;
+  Percent: number;
+};
+
+type OrbitData = {
+  Eccentricity: number;
+  OrbitalInclination: number;
+  OrbitalPeriod: number;
+  Periapsis: number;
+};
+
+type BarycenterData = {
+  AscendingNode: number;
+  MeanAnomaly: number;
+};
+
+type BasicSystemData = {
+  SystemAddress: number;
+  StarSystem: string;
+  StarPos: SystemCoordinatesParams;
+};
+
+type BasicBodyData = {
+  BodyID: number;
+  BodyName: string;
+  DistanceFromArrivalLS: number;
+};
+
+type BaseScanData = BasicBodyData & BasicSystemData;
+
+type RotationData = {
+  AxialTilt: number;
+  RotationPeriod: number;
+  Radius: number;
+};
+
+type ParentPlanetData = {
+  Planet: number;
+};
+type ParentStarData = {
+  Star: number;
+};
+type ParentBarycenterData = {
+  Null: number;
+};
+
+type ParentRingData = {
+  Ring: number;
+};
+
+type ParentData =
+  | ParentPlanetData
+  | ParentStarData
+  | ParentBarycenterData
+  | ParentRingData;
+
+type RingData = {
+  Name: string;
+  RingClass: string;
+  MassMT: number;
+  InnerRad: number;
+  OuterRad: number;
+};
+
+type ParentBodyData = {
+  Parents: ParentData[];
+};
+
+type RingedBodyData = {
+  Rings: RingData[];
+};
+
+type StarData = {
+  AbsoluteMagnitude: number;
+  Age_MY: number;
+  Luminosity: string;
+  Subclass: number;
+  SurfaceTemperature: number;
+  StarType: string;
+  StellarMass: number;
+};
+
+type StarScanData = StarData &
+  BaseScanData &
+  RotationData &
+  Partial<
+    ParentData & RingedBodyData & OrbitData & BarycenterData & ParentBodyData
+  >;
+
+type PlanetCompositionData = {
+  Ice: number;
+  Rock: number;
+  Metal: number;
+};
+
+type MaterialData = {
+  Name: string;
+  Percent: number;
+};
+type AtmosphereData = {
+  Atmosphere: string;
+  AtmosphereType: string;
+  AtmosphereComposition: AtmosphereCompositionData[];
+};
+
+type SurfaceMaterialData = {
+  Materials: MaterialData[];
+};
+
+type PlanetData = {
+  PlanetClass: string;
+  MassEM: number;
+  SurfaceGravity: number;
+  TidalLock?: boolean;
+  Volcanism?: string;
+  ReserveLevel?: string;
+  Landable?: boolean;
+  SurfacePressure?: number;
+  SurfaceTemperature?: number;
+  TerraformState?: string;
+};
+
+type PlanetSurfaceData = {};
+
+type PlanetScanData = PlanetData &
+  BaseData &
+  OrbitData &
+  RotationData &
+  ParentBodyData &
+  Partial<
+    AtmosphereCompositionData &
+      BarycenterData &
+      RingedBodyData &
+      PlanetCompositionData &
+      SurfaceMaterialData
+  >;
+
+type ScanData = BaseScanData & Partial<PlanetScanData & StarScanData>;

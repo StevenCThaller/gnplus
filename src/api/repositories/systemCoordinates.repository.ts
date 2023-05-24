@@ -18,5 +18,22 @@ export default class SystemCoordinatesRepository extends BaseRepository<SystemCo
     z: number
   ): Promise<SystemCoordinates> {
     return super._findOneOrCreate({ x, y, z }, { x, y, z });
+
+    // return (await this.repository.createQueryBuilder().insert().into(SystemCoordinates).values({x, y, z}).execute()
+  }
+
+  public async findOrCreateRunQueryBuilder(
+    x: number,
+    y: number,
+    z: number
+  ): Promise<any> {
+    await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(SystemCoordinates)
+      .values({ x, y, z })
+      .execute();
+
+    return this.repository.findOne({ where: { x, y, z } });
   }
 }

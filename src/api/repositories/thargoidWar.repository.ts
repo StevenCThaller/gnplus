@@ -30,7 +30,6 @@ export default class ThargoidWarRepository extends BaseRepository<ThargoidWar> {
     record.successStateReached = thargoidWar.successStateReached;
     record.warProgress = thargoidWar.warProgress;
     await this.repository.save(record);
-    this.logger.info("RECORRRRD: %o", record);
 
     return record;
   }

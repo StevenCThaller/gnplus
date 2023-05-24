@@ -53,8 +53,7 @@ export default class StarSystemRepository extends BaseRepository<StarSystem> {
   ): Promise<StarSystem> {
     return super._findOneOrCreate(
       {
-        systemAddress,
-        systemName
+        systemAddress
       },
       {
         systemAddress,

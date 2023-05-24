@@ -48,8 +48,8 @@ function getTypeData(filePath) {
   return JSON.parse(data);
 }
 
-const allData = getAllData(SCAN_EVENT_DIR);
-const typeData = getTypeData(SCAN_TYPE_FILE);
+const allData = getAllData(FSDJUMP_EVENT_DIR);
+const typeData = getTypeData(FSDJUMP_TYPE_FILE);
 
 determineOptionals(typeData, allData);
 

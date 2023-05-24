@@ -5,6 +5,8 @@ import { Logger } from "winston";
 import config from "@config/index";
 import FSDJumpHandler from "./fsdjump";
 import DockedService from "./docked";
+import BasicSystemService from "@stream/base/baseSystemHandler";
+import ScanService from "./scan";
 
 @Service()
 export default class StreamService {
@@ -32,21 +34,52 @@ export default class StreamService {
     this.listen(socket);
   }
 
+  private *scanCountGenerator() {
+    let count = 0;
+    while (true) {
+      yield count++;
+    }
+  }
+
   public async listen(socket: Subscriber): Promise<void> {
+    let total = 0;
+    let tidalCount = 0;
     for await (const [src] of socket) {
       try {
         const [event, data] = this.extractDataFromSocketSource(src);
         switch (event) {
           case "Docked": {
-            const start = new Date().getTime();
             await Container.get(DockedService).handleDockedEvent(data);
-            this.logger.info("Docked: %s ms", new Date().getTime() - start);
+            // this.logger.info("Docked: %s ms", new Date().getTime() - start);
             break;
           }
           case "FSDJump": {
-            const start = new Date().getTime();
             await Container.get(FSDJumpHandler).handleEvent(data);
-            this.logger.info("FSDJump: %s ms", new Date().getTime() - start);
+            // this.logger.info("FSDJump: %s ms", new Date().getTime() - start);
+            break;
+          }
+          case "Scan": {
+            if (data.hasOwnProperty("PlanetClass")) {
+              total++;
+              tidalCount += data.hasOwnProperty("TidalLock") ? 1 : 0;
+              this.logger.info(
+                "%s / %s planets have had the TidalLock field.",
+                tidalCount,
+                total
+              );
+              //   if (
+              //     data.hasOwnProperty("SurfaceGravity") &&
+              //     data.hasOwnProperty("SurfacePressure") &&
+              //     data.hasOwnProperty("SurfaceTemperature") &&
+              //     data.hasOwnProperty("TidalLock") &&
+              //     data.hasOwnProperty("Landable") &&
+              //     data.hasOwnProperty("Volcanism") &&
+              //     data.hasOwnProperty("TerraformState")
+              //   )
+              //     this.logger.info("SURFACE DATA ALWAYS TOGETHER");
+              //   else this.logger.info("OK MAYBE IT ISN'T");
+            }
+            // await Container.get(ScanService).handleEvent(data);
             break;
           }
           default:
