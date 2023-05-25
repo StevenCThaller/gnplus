@@ -33,8 +33,8 @@ export default class SystemFaction extends BaseEntity {
     name: "system_address",
     type: "bigint",
     unsigned: true,
-    nullable: true,
-    foreignKeyConstraintName: "system_address_system_faction"
+    nullable: true
+    // foreignKeyConstraintName: "system_address_system_faction"
   })
   public systemAddress?: number;
   @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemFactions, {

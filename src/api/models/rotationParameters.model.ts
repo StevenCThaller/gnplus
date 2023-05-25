@@ -10,7 +10,7 @@ import {
 import CelestialBody from "./celestialBody.model";
 
 @Entity("rotation_parameters")
-@Index("body_rotation", ["bodyId", "systemAddress"], { unique: true })
+@Index("rotating_body_idx", ["bodyId", "systemAddress"], { unique: true })
 export default class RotationParameters extends BaseEntity {
   /**
    * Composite Primary Key
@@ -39,13 +39,13 @@ export default class RotationParameters extends BaseEntity {
   })
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "rotating_body_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "rotating_body_fk"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "rotating_body_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "rotating_body_fk"
   })
   public body?: CelestialBody;
 }

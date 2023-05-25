@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
@@ -11,6 +12,7 @@ import Ring from "./ring.model";
 import BeltCluster from "./beltCluster.model";
 
 @Entity("asteroid_belts")
+// @Index("asteroid_belt_id", ["bodyId", "systemAddress"], { unique: true })
 export default class AsteroidBelt extends BaseEntity {
   @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;

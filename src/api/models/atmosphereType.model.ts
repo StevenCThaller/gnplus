@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 import PlanetAtmosphere from "./planetAtmosphere.model";
 
-@Entity("gases")
+@Entity("atmosphere_types")
 export default class AtmosphereType extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id?: number;

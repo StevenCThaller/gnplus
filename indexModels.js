@@ -16,8 +16,7 @@ const modelIndexContents = fs
 
     fileName = fileName.replace(".ts", "");
 
-    const newLine = `export { default as ${modelName} } from "./${fileName}";
-`;
+    const newLine = `export { default as ${modelName} } from "./${fileName}";`;
     return contents + newLine;
   }, "");
 

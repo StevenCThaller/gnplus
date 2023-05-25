@@ -18,8 +18,7 @@ const repositoryIndexContents = fs
 
     fileName = fileName.replace(".ts", "");
 
-    const newLine = `export { default as ${repositoryName} } from "./${fileName}";
-`;
+    const newLine = `export { default as ${repositoryName} } from "./${fileName}";`;
     return contents + newLine;
   }, "");
 

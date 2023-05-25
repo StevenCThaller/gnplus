@@ -12,7 +12,7 @@ import {
 import CelestialBody from "./celestialBody.model";
 
 @Entity("barycenters")
-@Index("barycenter_body_fk", ["bodyId", "systemAddress"], { unique: false })
+@Index("barycenter_id", ["bodyId", "systemAddress"], { unique: false })
 export default class Barycenter extends BaseEntity {
   @PrimaryGeneratedColumn({ unsigned: true })
   public id?: number;

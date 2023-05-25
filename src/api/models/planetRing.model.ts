@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn
@@ -24,13 +25,13 @@ export default class PlanetRing extends BaseEntity {
   @ManyToOne(() => RingedBody, (ringedBody) => ringedBody.rings)
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "planet_ring_ringed_body_fk"
+    referencedColumnName: "bodyId"
+    // // foreignKeyConstraintName: "ringed_body_id"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "planet_ring_ringed_body_fk"
+    referencedColumnName: "systemAddress"
+    // // foreignKeyConstraintName: "ringed_body_id"
   })
   public ringedBody?: RingedBody;
 }

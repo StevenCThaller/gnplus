@@ -128,6 +128,7 @@ type AtmosphereCompositionData = {
 };
 
 type OrbitData = {
+  SemiMajorAxis: number;
   Eccentricity: number;
   OrbitalInclination: number;
   OrbitalPeriod: number;
@@ -151,7 +152,7 @@ type BasicBodyData = {
   DistanceFromArrivalLS: number;
 };
 
-type BaseScanData = BasicBodyData & BasicSystemData;
+type BaseScanData = BasicBodyData & BasicSystemData & { timestamp: string };
 
 type RotationData = {
   AxialTilt: number;
@@ -234,30 +235,45 @@ type SurfaceMaterialData = {
 
 type PlanetData = {
   PlanetClass: string;
-  MassEM: number;
-  SurfaceGravity: number;
-  TidalLock?: boolean;
-  Volcanism?: string;
   ReserveLevel?: string;
-  Landable?: boolean;
-  SurfacePressure?: number;
-  SurfaceTemperature?: number;
-  TerraformState?: string;
+  Composition?: PlanetCompositionData;
 };
 
-type PlanetSurfaceData = {};
+type PlanetSurfaceData = {
+  MassEM: number;
+  TidalLock: boolean;
+  Landable: boolean;
+  SurfaceGravity: number;
+  SurfacePressure: number;
+  SurfaceTemperature: number;
+  Volcanism: string;
+  TerraformState: string;
+};
 
 type PlanetScanData = PlanetData &
-  BaseData &
+  PlanetSurfaceData &
+  BaseScanData &
   OrbitData &
   RotationData &
   ParentBodyData &
-  Partial<
-    AtmosphereCompositionData &
-      BarycenterData &
-      RingedBodyData &
-      PlanetCompositionData &
-      SurfaceMaterialData
-  >;
+  Partial<AtmosphereData> &
+  Partial<AtmosphereCompositionData> &
+  Partial<BarycenterData> &
+  Partial<RingedBodyData> &
+  Partial<PlanetCompositionData> &
+  Partial<SurfaceMaterialData>;
 
 type ScanData = BaseScanData & Partial<PlanetScanData & StarScanData>;
+
+type SurfaceDetailsParams = {
+  bodyId?: number;
+  systemAddress?: number;
+  massEM?: number;
+  tidalLock?: boolean;
+  landable?: boolean;
+  surfaceGravity?: number;
+  surfacePressure?: number;
+  surfaceTemperature?: number;
+  volcanism?: Volcanism;
+  terraformState?: TerraformState;
+};

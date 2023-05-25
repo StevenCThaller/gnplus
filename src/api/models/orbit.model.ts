@@ -11,7 +11,7 @@ import {
 import CelestialBody from "./celestialBody.model";
 
 @Entity("orbits")
-@Index("body_orbit", ["systemAddress", "bodyId"], { unique: true })
+@Index("body_orbit_idx", ["systemAddress", "bodyId"], { unique: true })
 export default class Orbit extends BaseEntity {
   /**
    * Composite Key - the orbiting body
@@ -43,13 +43,13 @@ export default class Orbit extends BaseEntity {
   })
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "body_orbit_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "body_orbit_fk"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "body_orbit_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "body_orbit_fk"
   })
   public body?: CelestialBody;
 
@@ -66,13 +66,13 @@ export default class Orbit extends BaseEntity {
   )
   @JoinColumn({
     name: "parent_body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "body_orbiting_body_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "body_orbiting_body_fk"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "body_orbiting_body_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "body_orbiting_body_fk"
   })
   public parentBody?: CelestialBody;
 }

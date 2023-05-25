@@ -23,8 +23,8 @@ export default class StarType extends BaseEntity {
 
   @Column({
     name: "category_id",
-    type: "tinyint",
-    foreignKeyConstraintName: "star_type_category_fk"
+    type: "tinyint"
+    // foreignKeyConstraintName: "star_type_category_fk"
   })
   public categoryId?: number;
   @ManyToOne(

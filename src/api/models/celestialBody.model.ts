@@ -17,7 +17,7 @@ import Ring from "./ring.model";
 import RotationParameters from "./rotationParameters.model";
 
 @Entity("celestial_bodies")
-@Index("system_body", ["bodyId", "systemAddress"], { unique: true })
+@Index("celestial_body_id", ["bodyId", "systemAddress"], { unique: true })
 export default class CelestialBody extends BaseEntity {
   /**
    * Composite Primary key
@@ -26,7 +26,7 @@ export default class CelestialBody extends BaseEntity {
   public bodyId?: number;
   @PrimaryColumn({
     name: "system_address",
-    foreignKeyConstraintName: "body_is_in_system",
+    // foreignKeyConstraintName: "body_is_in_system",
     type: "bigint",
     unsigned: true
   })
@@ -73,15 +73,15 @@ export default class CelestialBody extends BaseEntity {
   })
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "barycenter_of_this_body"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "barycenter_id"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "barycenter_of_this_body"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "barycenter_id"
   })
-  public barycenter?: Barycenter[];
+  public barycenter?: Barycenter;
 
   /**
    * One to One with Rotational Parameters -> the rotation parameters
@@ -94,13 +94,13 @@ export default class CelestialBody extends BaseEntity {
   )
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "body_rotation_parameters_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "rotation_parameters_id"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "body_rotation_parameters_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "rotation_parameters_id"
   })
   public rotationParameters?: RotationParameters;
 

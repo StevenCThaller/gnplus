@@ -23,8 +23,8 @@ export default class ActiveState extends BaseEntity {
     name: "system_faction_id",
     type: "bigint",
     unsigned: true,
-    nullable: true,
-    foreignKeyConstraintName: "active_state_system_faction"
+    nullable: true
+    // foreignKeyConstraintName: "active_state_system_faction"
   })
   public systemFactionId?: number;
   @ManyToOne(
@@ -40,7 +40,7 @@ export default class ActiveState extends BaseEntity {
    */
   @Column({
     name: "faction_state_id",
-    foreignKeyConstraintName: "active_state_faction_state",
+    // foreignKeyConstraintName: "active_state_faction_state",
     nullable: true
   })
   public factionStateId?: number;

@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -13,6 +14,7 @@ import PlanetRing from "./planetRing.model";
 import PlanetaryBody from "./planetaryBody.model";
 
 @Entity("ringed_bodies")
+@Index("ringed_body_idx", ["bodyId", "systemAddress"], { unique: true })
 export default class RingedBody extends BaseEntity {
   @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
@@ -39,13 +41,13 @@ export default class RingedBody extends BaseEntity {
   @OneToOne(() => PlanetaryBody, (planetaryBody) => planetaryBody.ringedBody)
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "ringed_body_planet_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "ringed_body_planet_fk"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "ringed_body_planet_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "ringed_body_planet_fk"
   })
   public planet?: PlanetaryBody;
 

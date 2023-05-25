@@ -32,12 +32,12 @@ export default class SurfaceMaterial extends BaseEntity {
   @JoinColumn({
     name: "body_id",
     referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "planetary_surface_material_fk"
+    // // foreignKeyConstraintName: "planetary_surface_material_fk"
   })
   @JoinColumn({
     name: "system_address",
     referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "planetary_surface_material_fk"
+    // // foreignKeyConstraintName: "planetary_surface_material_fk"
   })
   public planet?: PlanetaryBody;
 }

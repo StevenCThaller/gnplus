@@ -46,12 +46,12 @@ export default class Ring extends BaseEntity {
   // @JoinColumn({
   //   name: "body_id",
   //   referencedColumnName: "bodyId",
-  //   foreignKeyConstraintName: "ringed_body"
+  //   // foreignKeyConstraintName: "ringed_body"
   // })
   // @JoinColumn({
   //   name: "system_address",
   //   referencedColumnName: "systemAddress",
-  //   foreignKeyConstraintName: "ringed_body"
+  //   // foreignKeyConstraintName: "ringed_body"
   // })
   // public ringedBody?: CelestialBody;
 }

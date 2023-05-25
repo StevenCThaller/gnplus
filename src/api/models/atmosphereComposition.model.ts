@@ -10,11 +10,11 @@ import {
 import PlanetAtmosphere from "./planetAtmosphere.model";
 
 @Entity("atmosphere_compositions")
-@Index(
-  "planet_atmosphere_composition_idx",
-  ["bodyId", "systemAddress", "atmosphereTypeId"],
-  { unique: true }
-)
+// @Index(
+//   "atmosphere_composition_id",
+//   ["bodyId", "systemAddress", "atmosphereTypeId"],
+//   { unique: true }
+// )
 export default class AtmosphereComposition extends BaseEntity {
   @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
@@ -32,13 +32,13 @@ export default class AtmosphereComposition extends BaseEntity {
   )
   @JoinColumn({
     name: "body_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "planet_atmosphere_composition_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "planet_atmosphere_composition_fk"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "planet_atmosphere_composition_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "planet_atmosphere_composition_fk"
   })
   public planetAtmosphere?: PlanetAtmosphere;
 }

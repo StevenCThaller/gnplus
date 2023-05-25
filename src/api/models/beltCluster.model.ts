@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryColumn
@@ -9,6 +10,9 @@ import {
 import AsteroidBelt from "./asteroidBelt.model";
 
 @Entity("belt_clusters")
+// @Index("belt_cluster_id", ["bodyId", "systemAddress", "beltId"], {
+//   unique: true
+// })
 export default class BeltCluster extends BaseEntity {
   @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
@@ -17,16 +21,17 @@ export default class BeltCluster extends BaseEntity {
 
   @Column({ name: "belt_id", type: "tinyint", unsigned: true })
   public beltId?: number;
+
   @ManyToOne(() => AsteroidBelt, (asteroidBelt) => asteroidBelt.beltClusters)
   @JoinColumn({
     name: "belt_id",
-    referencedColumnName: "bodyId",
-    foreignKeyConstraintName: "cluster_belt_fk"
+    referencedColumnName: "bodyId"
+    // foreignKeyConstraintName: "asteroid_belt_id"
   })
   @JoinColumn({
     name: "system_address",
-    referencedColumnName: "systemAddress",
-    foreignKeyConstraintName: "cluster_belt_fk"
+    referencedColumnName: "systemAddress"
+    // foreignKeyConstraintName: "asteroid_belt_id"
   })
   public belt?: AsteroidBelt;
 }

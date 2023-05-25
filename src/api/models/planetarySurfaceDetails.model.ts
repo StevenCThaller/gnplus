@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -12,6 +13,7 @@ import Volcanism from "./volcanism.model";
 import PlanetaryBody from "./planetaryBody.model";
 
 @Entity("planetary_surface_details")
+@Index("surface_details_id", ["bodyId", "systemAddress"], { unique: true })
 export default class PlanetarySurfaceDetails extends BaseEntity {
   @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
@@ -53,7 +55,7 @@ export default class PlanetarySurfaceDetails extends BaseEntity {
   )
   @JoinColumn({
     name: "terraform_state_id",
-    foreignKeyConstraintName: "surface_terraform_fk"
+    referencedColumnName: "id"
   })
   public terraformState?: TerraformState;
 }
