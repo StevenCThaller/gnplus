@@ -3,11 +3,9 @@ import zlib from "zlib";
 import { Subscriber } from "zeromq";
 import { Logger } from "winston";
 import config from "@config/index";
-import { StationService } from "@api/services/station";
-import { Controller, Injectable } from "@nestjs/common";
-import LoggerInstance from "@loaders/logger";
+import FSDJumpHandler from "./fsdjump";
 import DockedService from "./docked";
-import FSDJumpService from "./fsdjump";
+import ScanService from "./scan";
 
 @Service()
 export default class StreamService {
@@ -35,27 +33,34 @@ export default class StreamService {
     this.listen(socket);
   }
 
-  public async listen(socket: Subscriber): Promise<void> {
-    for await (const [src] of socket) {
-      const start = new Date().getTime();
+  private *scanCountGenerator() {
+    let count = 0;
+    while (true) {
+      yield count++;
+    }
+  }
 
+  public async listen(socket: Subscriber): Promise<void> {
+    let total = 0;
+    let tidalCount = 0;
+    for await (const [src] of socket) {
       try {
         const [event, data] = this.extractDataFromSocketSource(src);
         switch (event) {
-          case "Docked":
+          case "Docked": {
             await Container.get(DockedService).handleDockedEvent(data);
-            this.logger.info(
-              "DOCKED EVENT HANDLED IN %s ms",
-              new Date().getTime() - start
-            );
+            // this.logger.info("Docked: %s ms", new Date().getTime() - start);
             break;
-          case "FSDJump":
-            await Container.get(FSDJumpService).handleFSDJumpEvent(data);
-            this.logger.info(
-              "FSDJUMP EVENT HANDLED IN %s ms",
-              new Date().getTime() - start
-            );
+          }
+          case "FSDJump": {
+            await Container.get(FSDJumpHandler).handleEvent(data);
+            // this.logger.info("FSDJump: %s ms", new Date().getTime() - start);
             break;
+          }
+          case "Scan": {
+            await Container.get(ScanService).handleEvent(data);
+            break;
+          }
           default:
             // this.logger.info("EVENT: %s", event);
             break;

@@ -27,10 +27,16 @@ function createTypeOutline(eventName, dataDirectory) {
 
   const typeOutline = {};
 
+  const bodyTypeSet = new Set();
+  const economySet = new Set();
+
   for (const file of files) {
     const eventData = JSON.parse(fs.readFileSync(`${dataDirectory}/${file}`));
+    // console.log(eventData);
+    bodyTypeSet.add(eventData.BodyType);
+    if (eventData.SystemEconomy) economySet.add(eventData.SystemEconomy);
 
-    generateType(eventData, typeOutline);
+    // generateType(eventData, typeOutline);
   }
 
   fs.writeFileSync(

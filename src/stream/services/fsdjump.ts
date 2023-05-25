@@ -1,313 +1,667 @@
-import Allegiance from "@api/models/allegiance";
-import Economy from "@api/models/economy";
-import Faction from "@api/models/faction";
-import FactionState from "@api/models/factionState";
-import Government from "@api/models/government";
-import Power from "@api/models/power";
-import PowerplayState from "@api/models/powerplayState";
-import PrimarySystemFaction from "@api/models/primarySystemFaction";
-import SecurityLevel from "@api/models/securityLevel";
-import ServiceOffered from "@api/models/serviceOffered";
-import StarSystem from "@api/models/starSystem";
-import StationEconomy from "@api/models/stationEconomy";
-import SystemCoordinates from "@api/models/systemCoordinates";
-import SystemEconomy from "@api/models/systemEconomy";
-import ThargoidWar from "@api/models/thargoidWar";
-import ThargoidWarState from "@api/models/thargoidWarState";
-import AllegianceService from "@api/services/allegiance";
-import EconomyService from "@api/services/economy";
-import FactionService from "@api/services/faction";
-import FactionStateService from "@api/services/factionState";
-import GovernmentService from "@api/services/government";
-import PowerService from "@api/services/power";
-import PowerplayStateService from "@api/services/powerplayState";
-import PrimarySystemFactionService from "@api/services/primarySystemFaction";
-import SecurityLevelService from "@api/services/securityLevel";
-import StarSystemService from "@api/services/starSystem";
-import SystemCoordinatesService from "@api/services/systemCoordinates";
-import SystemEconomyService from "@api/services/systemEconomy";
-import ThargoidWarService from "@api/services/thargoidWar";
-import ThargoidWarStateService from "@api/services/thargoidWarState";
 import {
-  EconomyParams,
-  GovernmentParams,
-  toAllegiance,
-  toGovernment,
-  toStarSystem,
-  toSystemCoordinates,
-  toThargoidWar
-} from "@utils/eventConverters";
+  Allegiance,
+  BodyType,
+  CelestialBody,
+  ConflictFaction,
+  ConflictStatus,
+  ConflictWarType,
+  Economy,
+  Faction,
+  FactionState,
+  Government,
+  HappinessLevel,
+  PendingState,
+  Power,
+  PowerplayState,
+  PrimarySystemFaction,
+  RecoveringState,
+  SecurityLevel,
+  StarSystem,
+  SystemConflict,
+  SystemCoordinates,
+  SystemEconomy,
+  SystemFaction,
+  ThargoidWar,
+  ThargoidWarState
+} from "@api/models";
+import ActiveState from "@api/models/activeState.model";
+import {
+  AllegianceRepository,
+  BodyTypeRepository,
+  ConflictFactionRepository,
+  ConflictStatusRepository,
+  ConflictWarTypeRepository,
+  EconomyRepository,
+  FactionRepository,
+  FactionStateRepository,
+  GovernmentRepository,
+  HappinessLevelRepository,
+  PendingStateRepository,
+  PowerRepository,
+  PowerplayStateRepository,
+  PrimarySystemFactionRepository,
+  RecoveringStateRepository,
+  SecurityLevelRepository,
+  StarSystemRepository,
+  SystemConflictRepository,
+  SystemCoordinatesRepository,
+  SystemEconomyRepository,
+  SystemFactionRepository,
+  ThargoidWarRepository,
+  ThargoidWarStateRepository
+} from "@api/repositories";
+import ActiveStateRepository from "@api/repositories/activeState";
+import CelestialBodyRepository from "@api/repositories/celestialBody.repository";
+import PoliticalHandler from "@stream/base/politicalHandler";
 import { hasOwnProperty } from "@utils/prototypeHelpers";
-import { Service, Inject } from "typedi";
+import { Inject, Service } from "typedi";
 import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "winston";
 
 @Service()
-export default class FSDJumpService {
-  private manager?: EntityManager;
-
+export default class FSDJumpHandler extends PoliticalHandler<FSDJumpData> {
+  /**
+   *
+   * @param {DataSource} dataSource - Entity repository injected on Container call
+   */
   constructor(
     @Inject("dataSource")
-    private readonly dataSource: DataSource,
-    @Inject("logger")
-    private logger: Logger
-  ) {}
+    protected dataSource: DataSource
+  ) {
+    super(dataSource);
+  }
 
-  public async handleFSDJumpEvent(data: FSDJumpData): Promise<void> {
+  public async handleEvent(data: FSDJumpData): Promise<void> {
     return this.dataSource.transaction(async (manager: EntityManager) => {
       this.manager = manager;
+      await this.findOrCreateArrivalBody(data);
+
       await this.findOrCreateSystem(data);
     });
   }
 
-  private async findOrCreateSystem(data: FSDJumpData): Promise<void> {
-    const systemCoordinatesRecord = await this.findOrCreateSystemCoordinates(
-      data
+  /**
+   *
+   * @param systemFactionId
+   * @param activeState
+   * @returns
+   */
+  public async findOrCreateActiveState(
+    systemFactionId: number,
+    activeState: string
+  ): Promise<ActiveState> {
+    const repo: ActiveStateRepository = this.getRepo(ActiveStateRepository);
+    const factionState: FactionState = (await this.findOrCreateFactionState(
+      activeState
+    )) as FactionState;
+    const record: ActiveState = await repo.findOneOrCreate(
+      systemFactionId,
+      factionState.id as number
     );
-    const systemAllegianceRecord = await this.findOrCreateAllegiance(data);
-    const systemGovernmentRecord = await this.findOrCreateGovernment(data);
-    const systemSecurityRecord = await this.findOrCreateSecurityLevel(data);
-    const powerplayStateRecord = await this.findOrCreatePowerplayState(data);
-    const powerRecords = await this.findOrCreatePowers(data);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
 
-    const { systemAddress, systemName, population } = toStarSystem(data);
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateActiveStateArray(
+    systemFactionId: number,
+    data: ActiveStateJump[]
+  ): Promise<ActiveState[] | undefined> {
+    if (!data) return;
+    const output: ActiveState[] = [];
 
-    const systemEconomyRecord = await this.findOrCreateSystemEconomy(data);
-
-    const repo = new StarSystemService(this.manager || this.dataSource);
-    const systemRecord = await repo.findOneOrCreateBase(
-      systemAddress,
-      systemName
-    );
-
-    systemRecord.systemCoordinates = systemCoordinatesRecord;
-    if (systemAllegianceRecord)
-      systemRecord.allegiance = systemAllegianceRecord;
-    systemRecord.government = systemGovernmentRecord;
-    systemRecord.population = population;
-    systemRecord.securityLevel = systemSecurityRecord;
-    systemRecord.systemEconomy = systemEconomyRecord;
-    if (powerplayStateRecord)
-      systemRecord.powerplayState = powerplayStateRecord;
-    systemRecord.systemPowers = powerRecords;
-
-    if (systemRecord.primaryFactionId) {
-      systemRecord.primaryFaction = (await this.updatePrimaryFaction(
-        systemRecord.primaryFactionId,
-        data
-      )) as PrimarySystemFaction;
-    } else if (hasOwnProperty(data, "SystemFaction")) {
-      const primarySystemFactionRecord = await this.findOrCreatePrimaryFaction(
-        data
-      );
-      systemRecord.primaryFaction =
-        primarySystemFactionRecord as PrimarySystemFaction;
+    for (const activeState of data) {
+      const record: ActiveState = (await this.findOrCreateActiveState(
+        systemFactionId,
+        activeState.State
+      )) as ActiveState;
+      output.push(record);
     }
-    await repo.save(systemRecord);
-
-    await this.findOrCreateThargoidWar(data);
+    return output;
   }
 
-  private async findOrCreatePowers(data: FSDJumpData): Promise<Power[]> {
-    if (!data.Powers || data.Powers.length === 0) return [];
-
-    const repo = new PowerService(this.manager || this.dataSource);
-    return repo.bulkFindOrCreate(data.Powers);
-  }
-
-  private async findOrCreatePowerplayState(
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateArrivalBody(
     data: FSDJumpData
-  ): Promise<PowerplayState | undefined> {
-    const repo = new PowerplayStateService(this.manager || this.dataSource);
-
-    if (!data.PowerplayState) return;
-
-    return repo.findOneOrCreate(data.PowerplayState);
-  }
-
-  private async updatePrimaryFaction(
-    id: number,
-    data: FSDJumpData
-  ): Promise<PrimarySystemFaction | undefined> {
-    if (!data.SystemFaction) return;
-    const repo = new PrimarySystemFactionService(
-      this.manager || this.dataSource
+  ): Promise<CelestialBody> {
+    const repo: CelestialBodyRepository = this.getRepo(CelestialBodyRepository);
+    const bodyType: BodyType = await this.findOrCreateArrivalBodyType(
+      data.BodyType
     );
-    const factionRecord = await this.findOrCreateFaction(
-      data.SystemFaction.Name
-    );
-    let factionStateRecord;
-    if (data.SystemFaction.FactionState) {
-      factionStateRecord = await this.findOrCreateFactionState(
-        data.SystemFaction.FactionState
-      );
-    }
 
-    return repo.findOneAndUpdate(
+    const record: CelestialBody = await repo.findOneOrCreate(
+      data.BodyID,
       data.SystemAddress,
-      factionRecord,
-      factionStateRecord
+      data.Body,
+      0,
+      bodyType
     );
+
+    // this.logger.info("Celestial body?: %o", record);
+
+    if (!record.createdAt) await repo.save(record);
+    return record;
   }
 
-  private async findOrCreatePrimaryFaction(
-    data: FSDJumpData
+  /**
+   *
+   * @param bodyType
+   * @returns
+   */
+  public async findOrCreateArrivalBodyType(
+    bodyType: string
+  ): Promise<BodyType> {
+    const repo: BodyTypeRepository = this.getRepo(BodyTypeRepository);
+    const record: BodyType = await repo.findOneOrCreate(bodyType);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreateConflictFaction(
+    systemAddress: number,
+    data: ConflictFactionJump
+  ): Promise<ConflictFaction> {
+    const repo: ConflictFactionRepository = this.getRepo(
+      ConflictFactionRepository
+    );
+    const record: ConflictFaction = await repo.updateOneOrCreate({
+      systemAddress,
+      factionId: ((await this.findOrCreateFaction(data.Name)) as Faction).id,
+      stake: data.Stake,
+      wonDays: data.WonDays
+    });
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param conflictStatus
+   * @returns
+   */
+  public async findOrCreateConflictStatus(
+    conflictStatus: string
+  ): Promise<ConflictStatus> {
+    const repo: ConflictStatusRepository = this.getRepo(
+      ConflictStatusRepository
+    );
+    const record: ConflictStatus = await repo.findOneOrCreate(conflictStatus);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param warType
+   * @returns
+   */
+  public async findOrCreateConflictWarType(
+    warType: string
+  ): Promise<ConflictWarType> {
+    const repo: ConflictWarTypeRepository = this.getRepo(
+      ConflictWarTypeRepository
+    );
+    const record: ConflictWarType = await repo.findOneOrCreate(warType);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param happinessLevel
+   * @returns
+   */
+  public async findOrCreateHappinessLevel(
+    happinessLevel: string
+  ): Promise<HappinessLevel> {
+    const repo: HappinessLevelRepository = this.getRepo(
+      HappinessLevelRepository
+    );
+    const record: HappinessLevel = await repo.findOneOrCreate(happinessLevel);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreatePendingState(
+    systemFactionId: number,
+    data: TrendingStateJump
+  ): Promise<PendingState> {
+    const repo: PendingStateRepository = this.getRepo(PendingStateRepository);
+    const factionStateRecord = (await this.findOrCreateFactionState(
+      data.State
+    )) as FactionState;
+    const record: PendingState = await repo.findOrCreate({
+      systemFactionId,
+      factionStateId: factionStateRecord.id,
+      trend: data.Trend
+    });
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreatePendingStateArray(
+    systemFactionId: number,
+    data: TrendingStateJump[]
+  ): Promise<PendingState[] | undefined> {
+    if (!data) return;
+    const output: PendingState[] = [];
+
+    for (const pendingState of data) {
+      const record: PendingState = await this.findOrCreatePendingState(
+        systemFactionId,
+        pendingState
+      );
+      output.push(record);
+    }
+    return output;
+  }
+
+  /**
+   *
+   * @param power
+   * @returns
+   */
+  public async findOrCreatePower(power: string): Promise<Power> {
+    const repo: PowerRepository = this.getRepo(PowerRepository);
+    const record: Power = await repo.findOneOrCreate(power);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  public async findOrCreatePowerArray(
+    data?: string[]
+  ): Promise<Power[] | undefined> {
+    if (!data) return;
+    const output: Power[] = [];
+
+    for (const power of data) {
+      const record: Power = await this.findOrCreatePower(power);
+      output.push(record);
+    }
+    return output;
+  }
+
+  /**
+   *
+   * @param powerplayState
+   * @returns
+   */
+  public async findOrCreatePowerplayState(
+    powerplayState?: string
+  ): Promise<PowerplayState | undefined> {
+    if (!powerplayState) return;
+    const repo: PowerplayStateRepository = this.getRepo(
+      PowerplayStateRepository
+    );
+    const record: PowerplayState = await repo.findOneOrCreate(powerplayState);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreatePrimarySystemFaction(
+    systemAddress: number,
+    data: PrimarySystemFactionJump
   ): Promise<PrimarySystemFaction | undefined> {
-    const repo = new PrimarySystemFactionService(
-      this.manager || this.dataSource
+    if (!data || !data.Name) return;
+    const repo: PrimarySystemFactionRepository = this.getRepo(
+      PrimarySystemFactionRepository
+    );
+    const record: PrimarySystemFaction = await repo.findOrCreate({
+      systemAddress: systemAddress,
+      faction: (await this.findOrCreateFaction(data.Name)) as Faction,
+      factionState: await this.findOrCreateFactionState(data.FactionState)
+    } as PrimarySystemFaction);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateRecoveringState(
+    systemFactionId: number,
+    data: TrendingStateJump
+  ): Promise<RecoveringState> {
+    const repo: RecoveringStateRepository = this.getRepo(
+      RecoveringStateRepository
+    );
+    const factionStateRecord: FactionState =
+      (await this.findOrCreateFactionState(data.State)) as FactionState;
+    const record: RecoveringState = await repo.findOrCreate({
+      systemFactionId,
+      factionStateId: factionStateRecord.id,
+      trend: data.Trend
+    });
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateRecoveringStatesArray(
+    systemFactionId: number,
+    data: TrendingStateJump[]
+  ): Promise<RecoveringState[] | undefined> {
+    if (!data) return;
+    const output: RecoveringState[] = [];
+
+    for (const recoveringState of data) {
+      const record: RecoveringState = await this.findOrCreateRecoveringState(
+        systemFactionId,
+        recoveringState
+      );
+      output.push(record);
+    }
+    return output;
+  }
+
+  /**
+   *
+   * @param securityLevel
+   * @returns
+   */
+  public async findOrCreateSecurityLevel(
+    securityLevel: string
+  ): Promise<SecurityLevel | undefined> {
+    if (!securityLevel) return;
+    const repo: SecurityLevelRepository = this.getRepo(SecurityLevelRepository);
+    const record: SecurityLevel = await repo.findOneOrCreate(securityLevel);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystem(data: FSDJumpData): Promise<StarSystem> {
+    const repo: StarSystemRepository = this.getRepo(StarSystemRepository);
+
+    const government = await this.findOrCreateGovernment(data.SystemGovernment);
+    const allegiance = await this.findOrCreateAllegiance(data.SystemAllegiance);
+    const systemEconomy = await this.findOrCreateSystemEconomy(data);
+    const securityLevel = await this.findOrCreateSecurityLevel(
+      data.SystemSecurity
+    );
+    const primaryFaction = await this.findOrCreatePrimarySystemFaction(
+      data.SystemAddress,
+      data.SystemFaction
+    );
+    const powerplayState = await this.findOrCreatePowerplayState(
+      data.PowerplayState
+    );
+    const thargoidWar = await this.findOrCreateThargoidWar(
+      data.SystemAddress,
+      data.ThargoidWar
+    );
+    const systemCoordinates = await this.findOrCreateSystemCoordinates(
+      data.StarPos
     );
 
-    if (!data.SystemFaction) return;
-    const factionRecord = await this.findOrCreateFaction(
-      data.SystemFaction.Name
+    const record: StarSystem = await repo.updateOneOrCreate({
+      systemAddress: data.SystemAddress,
+      systemName: data.StarSystem,
+      population: data.Population,
+      systemCoordinates,
+      government,
+      allegiance,
+      systemEconomy,
+      primaryFaction,
+      securityLevel,
+      powerplayState,
+      thargoidWar
+    });
+    await repo.save(record);
+
+    record.systemFactions = await this.findOrCreateSystemFactionArray(
+      data.SystemAddress,
+      data.Factions
     );
-    const factionStateRecord = data.SystemFaction.FactionState
-      ? await this.findOrCreateFactionState(data.SystemFaction.FactionState)
+    record.systemPowers = await this.findOrCreatePowerArray(data.Powers);
+    record.systemConflicts = await this.findOrCreateSystemConflictArray(
+      data.SystemAddress,
+      data.Conflicts
+    );
+
+    await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystemConflict(
+    systemAddress: number,
+    data: SystemConflictJump
+  ): Promise<SystemConflict> {
+    const repo: SystemConflictRepository = this.getRepo(
+      SystemConflictRepository
+    );
+    const record: SystemConflict = await repo.updateOneOrCreate({
+      systemAddress,
+      factionOneId: (
+        (await this.findOrCreateConflictFaction(
+          systemAddress,
+          data.Faction1
+        )) as ConflictFaction
+      ).id,
+      factionTwoId: (
+        (await this.findOrCreateConflictFaction(
+          systemAddress,
+          data.Faction2
+        )) as ConflictFaction
+      ).id,
+      conflictStatus: await this.findOrCreateConflictStatus(data.Status),
+      warType: await this.findOrCreateConflictWarType(data.WarType)
+    });
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystemConflictArray(
+    systemAddress: number,
+    data?: SystemConflictJump[]
+  ): Promise<SystemConflict[] | undefined> {
+    if (!data) return;
+    const output: SystemConflict[] = [];
+    for (const systemConflict of data) {
+      const record: SystemConflict = await this.findOrCreateSystemConflict(
+        systemAddress,
+        systemConflict
+      );
+      output.push(record);
+    }
+
+    return output;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystemEconomy(
+    data: FSDJumpData
+  ): Promise<SystemEconomy | undefined> {
+    if (
+      !hasOwnProperty(data, "SystemEconomy") &&
+      !hasOwnProperty(data, "SystemSecondEconomy")
+    )
+      return;
+    const repo: SystemEconomyRepository = this.getRepo(SystemEconomyRepository);
+    const record: SystemEconomy = await repo.findOneOrCreate({
+      primaryEconomy: await this.findOrCreateEconomy(data.SystemEconomy),
+      secondaryEconomy: await this.findOrCreateEconomy(data.SystemSecondEconomy)
+    } as SystemEconomy);
+    if (!record.hasId()) await repo.save(record);
+    return record;
+  }
+
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystemFactionArray(
+    systemAddress: number,
+    data?: SystemFactionJump[]
+  ): Promise<SystemFaction[] | undefined> {
+    if (!data) return;
+    const output: SystemFaction[] = [];
+
+    for (const systemFaction of data) {
+      const record: SystemFaction = (await this.findOrCreateSystemFaction(
+        systemAddress,
+        systemFaction
+      )) as SystemFaction;
+      output.push(record);
+    }
+    return output;
+  }
+
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreateSystemFaction(
+    systemAddress: number,
+    data: SystemFactionJump
+  ): Promise<SystemFaction | undefined> {
+    if (!data) return;
+    const repo: SystemFactionRepository = this.getRepo(SystemFactionRepository);
+    const allegiance = await this.findOrCreateAllegiance(data.Allegiance);
+    const government = await this.findOrCreateGovernment(data.Government);
+    const happinessLevel = await this.findOrCreateHappinessLevel(
+      data.Happiness
+    );
+    const faction = await this.findOrCreateFaction(data.Name);
+    const factionState = data.FactionState
+      ? await this.findOrCreateFactionState(data.FactionState)
       : undefined;
 
-    const systemFactionRecord = await repo.findOneOrCreate(
-      data.SystemAddress,
-      factionRecord,
-      factionStateRecord
-    );
-    // await repo.save(systemFactionRecord);
-    return systemFactionRecord;
-  }
-
-  private async findOrCreateSecurityLevel(
-    data: FSDJumpData
-  ): Promise<SecurityLevel> {
-    const repo = new SecurityLevelService(this.manager || this.dataSource);
-    return repo.findOneOrCreate(data.SystemSecurity);
-  }
-
-  private async findOrCreateSystemEconomy(
-    data: FSDJumpData
-  ): Promise<SystemEconomy> {
-    const repo = new SystemEconomyService(this.manager || this.dataSource);
-
-    const primaryEconomyRecord = await this.findOrCreateEconomy(
-      data.SystemEconomy
-    );
-    const secondaryEconomyRecord = await this.findOrCreateEconomy(
-      data.SystemSecondEconomy
-    );
-    const systemEconomy = await repo.findOneOrCreate(
-      primaryEconomyRecord,
-      secondaryEconomyRecord
-    );
-    if (!systemEconomy.id) await repo.save(systemEconomy);
-
-    return systemEconomy;
-  }
-
-  private async findOrCreateSystemCoordinates(
-    data: FSDJumpData
-  ): Promise<SystemCoordinates> {
-    const params = toSystemCoordinates(data);
-    if (!params) throw "no";
-    const repo = new SystemCoordinatesService(this.manager || this.dataSource);
-    const { x, y, z } = params;
-    return repo.findOneOrCreate(x, y, z);
-  }
-
-  private async findOrCreateFactionState(
-    factionState: string
-  ): Promise<FactionState> {
-    const repo = new FactionStateService(this.manager || this.dataSource);
-    return repo.findOneOrCreate(factionState);
-  }
-
-  private async findOrCreateFaction(faction: string): Promise<Faction> {
-    const repo = new FactionService(this.manager || this.dataSource);
-    return repo.findOneOrCreate(faction);
-  }
-
-  private async findOrCreateEconomy(economy: string): Promise<Economy> {
-    const repo = new EconomyService(this.manager || this.dataSource);
-    const economyRecord = await repo.findOneOrCreate(economy);
-    return economyRecord;
-    // await repo.save(economyRecord);
-    // return economy;
-  }
-
-  private async findOrCreateAllegiance(
-    data: FSDJumpData
-  ): Promise<Allegiance | undefined> {
-    const allegianceParams = toAllegiance(data);
-    if (allegianceParams) {
-      // const repo = this.getRepo(Allegiance);
-      const repo = new AllegianceService(
-        this.manager ? this.manager : this.dataSource
+    const record: SystemFaction = await repo.findOrCreate({
+      systemAddress: systemAddress,
+      allegiance,
+      government,
+      happinessLevel,
+      faction,
+      factionState
+    });
+    if (data.ActiveStates) {
+      await this.findOrCreateActiveStateArray(
+        record.id as number,
+        data.ActiveStates
       );
-      const allegiance = await repo.findOneOrCreate(
-        allegianceParams.allegiance
-      );
-      if (!allegiance.id) await repo.save(allegiance);
-      return allegiance;
     }
+
+    if (!record.hasId()) await repo.save(record);
+
+    if (data.PendingStates) {
+      await this.findOrCreatePendingStateArray(
+        record.id as number,
+        data.PendingStates
+      );
+    }
+    if (data.RecoveringStates) {
+      await this.findOrCreateRecoveringStatesArray(
+        record.id as number,
+        data.RecoveringStates
+      );
+    }
+
+    return record;
   }
 
-  private async findOrCreateGovernment(data: FSDJumpData): Promise<Government> {
-    const governmentParams = toGovernment(data) as GovernmentParams;
-    // if (governmentParams) {
-    const repo = new GovernmentService(this.manager || this.dataSource);
-    const government = await repo.findOneOrCreate(governmentParams.government);
-    if (!government.id) await repo.save(government);
-    return government;
-    // }
-  }
-
-  // private async findOrCreateSystemConflict()
-
-  private async findOrCreateThargoidWar(
-    data: FSDJumpData
+  /**
+   *
+   * @param systemAddress
+   * @param data
+   * @returns
+   */
+  public async findOrCreateThargoidWar(
+    systemAddress: number,
+    data?: ThargoidWarJump
   ): Promise<ThargoidWar | undefined> {
-    const thargoidWarParams = toThargoidWar(data);
-    if (!thargoidWarParams) return;
-
-    const {
+    if (!data) return;
+    const repo: ThargoidWarRepository = this.getRepo(ThargoidWarRepository);
+    const record: ThargoidWar = await repo.updateOrCreate({
       systemAddress,
-      currentState,
-      estimatedRemainingTime,
-      nextStateFailure,
-      nextStateSuccess,
-      remainingPorts,
-      successStateReached,
-      warProgress
-    } = thargoidWarParams;
-
-    const repo = new ThargoidWarService(this.manager || this.dataSource);
-
-    const currentStateRecord = await this.findOrCreateThargoidWarState(
-      currentState
-    );
-    const nextStateFailureRecord = await this.findOrCreateThargoidWarState(
-      nextStateFailure
-    );
-    const nextStateSuccessRecord = await this.findOrCreateThargoidWarState(
-      nextStateSuccess
-    );
-
-    const thargoidWarRecord = await repo.findOneOrCreate(
-      systemAddress,
-      currentStateRecord.id,
-      estimatedRemainingTime,
-      nextStateFailureRecord.id,
-      nextStateSuccessRecord.id,
-      remainingPorts,
-      successStateReached,
-      warProgress
-    );
-
-    return thargoidWarRecord;
+      remainingPorts: data.RemainingPorts,
+      warProgress: data.WarProgress,
+      estimatedRemainingTime: data.EstimatedRemainingTime,
+      successStateReached: data.SuccessStateReached,
+      currentState: await this.findOrCreateThargoidWarState(data.CurrentState),
+      nextStateFailure: await this.findOrCreateThargoidWarState(
+        data.NextStateFailure
+      ),
+      nextStateSuccess: await this.findOrCreateThargoidWarState(
+        data.NextStateSuccess
+      )
+    });
+    if (!record.hasId()) await repo.save(record);
+    return record;
   }
 
-  private async findOrCreateThargoidWarState(
+  /**
+   *
+   * @param warState
+   * @returns
+   */
+  public async findOrCreateThargoidWarState(
     warState: string
   ): Promise<ThargoidWarState> {
-    const repo = new ThargoidWarStateService(this.manager || this.dataSource);
-
-    return repo.findOneOrCreate(warState);
+    const repo: ThargoidWarStateRepository = this.getRepo(
+      ThargoidWarStateRepository
+    );
+    const record: ThargoidWarState = await repo.findOneOrCreate(warState);
+    if (!record.hasId()) await repo.save(record);
+    return record;
   }
 }

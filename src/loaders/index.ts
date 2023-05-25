@@ -10,17 +10,8 @@ export default async () => {
     await typeormLoader();
 
     const baseName: string = path.basename(__filename);
-    const serviceFiles = fs
-      .readdirSync(path.join(__dirname, "../api/services"))
-      .filter(
-        (fileName: string) =>
-          fileName.slice(-4) !== ".map" && fileName !== baseName
-      )
-      .map((fileName: string) =>
-        fileName.replace(".ts", "").replace(".js", "")
-      );
 
-    await dependencyInjector({ models: [], services: serviceFiles });
+    await dependencyInjector({ models: [], services: [] });
     await eddnLoader();
   } catch (error) {
     Logger.error("An error occurred when executing loaders: %o", error);

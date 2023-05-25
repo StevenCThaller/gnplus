@@ -53,8 +53,8 @@ const typeData = getTypeData(FSDJUMP_TYPE_FILE);
 
 determineOptionals(typeData, allData);
 
-fs.readdirSync(FSDJUMP_EVENT_DIR).forEach((file) => {
-  const data = JSON.parse(
-    fs.readFileSync(`${FSDJUMP_EVENT_DIR}/${file}`).toString()
-  );
-});
+// fs.readdirSync(FSDJUMP_EVENT_DIR).forEach((file) => {
+//   const data = JSON.parse(
+//     fs.readFileSync(`${FSDJUMP_EVENT_DIR}/${file}`).toString()
+//   );
+// });
