@@ -13,7 +13,6 @@ import StarSystem from "./starSystem.model";
 import BodyType from "./bodyType.model";
 import Orbit from "./orbit.model";
 import Barycenter from "./barycenter.model";
-import Ring from "./ring.model";
 import RotationParameters from "./rotationParameters.model";
 
 @Entity("celestial_bodies")
@@ -26,7 +25,6 @@ export default class CelestialBody extends BaseEntity {
   public bodyId?: number;
   @PrimaryColumn({
     name: "system_address",
-    // foreignKeyConstraintName: "body_is_in_system",
     type: "bigint",
     unsigned: true
   })
@@ -55,7 +53,10 @@ export default class CelestialBody extends BaseEntity {
   /**
    * Optional One to One with Orbit - this body's orbit
    */
+  @Column({ name: "orbit_id", nullable: true, type: "bigint", unsigned: true })
+  public orbitId?: number;
   @OneToOne(() => Orbit, (orbit) => orbit.body, { cascade: ["insert"] })
+  @JoinColumn({ name: "orbit_id" })
   public orbit?: Orbit;
 
   /**
@@ -68,19 +69,12 @@ export default class CelestialBody extends BaseEntity {
    * Many to One with Barycenter -> the barycenter around which this
    * body orbits
    */
+  @Column({ name: "barycenter_id", nullable: true })
+  public barycenterId?: number;
   @ManyToOne(() => Barycenter, (barycenter) => barycenter.bodies, {
     createForeignKeyConstraints: false
   })
-  @JoinColumn({
-    name: "body_id",
-    referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "barycenter_id"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "barycenter_id"
-  })
+  @JoinColumn({ name: "barycenter_id" })
   public barycenter?: Barycenter;
 
   /**
@@ -92,16 +86,6 @@ export default class CelestialBody extends BaseEntity {
     (rotationParameters) => rotationParameters.body,
     { cascade: ["insert"], createForeignKeyConstraints: false }
   )
-  @JoinColumn({
-    name: "body_id",
-    referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "rotation_parameters_id"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "rotation_parameters_id"
-  })
   public rotationParameters?: RotationParameters;
 
   /**

@@ -35,7 +35,6 @@ export default class ThargoidWar extends BaseEntity {
     type: "bigint",
     unsigned: true,
     nullable: true
-    // foreignKeyConstraintName: "system_address_thargoid_war"
   })
   public systemAddress?: number;
   @OneToOne(() => StarSystem, (starSystem) => starSystem.thargoidWar, {
@@ -49,7 +48,6 @@ export default class ThargoidWar extends BaseEntity {
    */
   @Column({
     name: "current_state_id"
-    // foreignKeyConstraintName: "thargoid_war_current_state"
   })
   public currentStateId?: number;
   @ManyToOne(
@@ -65,7 +63,6 @@ export default class ThargoidWar extends BaseEntity {
    */
   @Column({
     name: "next_state_failure_id"
-    // foreignKeyConstraintName: "thargoid_war_next_state_failure"
   })
   public nextStateFailureId?: number;
   @ManyToOne(
@@ -81,7 +78,6 @@ export default class ThargoidWar extends BaseEntity {
    */
   @Column({
     name: "next_state_success_id"
-    // foreignKeyConstraintName: "thargoid_war_next_state_success"
   })
   public nextStateSuccessId?: number;
   @ManyToOne(

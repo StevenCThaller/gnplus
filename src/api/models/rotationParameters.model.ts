@@ -5,19 +5,22 @@ import {
   Index,
   JoinColumn,
   OneToOne,
-  PrimaryColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn
 } from "typeorm";
 import CelestialBody from "./celestialBody.model";
 
 @Entity("rotation_parameters")
-@Index("rotating_body_idx", ["bodyId", "systemAddress"], { unique: true })
+@Index(["bodyId", "systemAddress"], { unique: true })
 export default class RotationParameters extends BaseEntity {
+  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  public id?: number;
   /**
-   * Composite Primary Key
+   * Composite Foreign Key
    */
-  @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
+  @Column({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
   /**
@@ -40,12 +43,10 @@ export default class RotationParameters extends BaseEntity {
   @JoinColumn({
     name: "body_id",
     referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "rotating_body_fk"
   })
   @JoinColumn({
     name: "system_address",
     referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "rotating_body_fk"
   })
   public body?: CelestialBody;
 }

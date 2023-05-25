@@ -14,7 +14,7 @@ export default class PlanetClassRepository extends BaseRepository<PlanetClass> {
     super(PlanetClass, dataSource);
   }
 
-  public async findOneOrCreate(planetClass: string): Promise<PlanetClass> {
-    return await super._findOneOrCreate({ planetClass }, { planetClass });
+  public async findOneOrCreate(className: string): Promise<PlanetClass> {
+    return await super._findOneOrCreate({ className }, { className });
   }
 }

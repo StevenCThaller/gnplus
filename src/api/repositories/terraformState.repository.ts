@@ -14,9 +14,7 @@ export default class TerraformStateRepository extends BaseRepository<TerraformSt
     super(TerraformState, dataSource);
   }
 
-  public async findOneOrCreate(
-    terraformState: string
-  ): Promise<TerraformState> {
-    return await super._findOneOrCreate({ terraformState }, { terraformState });
+  public async findOneOrCreate(stateName: string): Promise<TerraformState> {
+    return await super._findOneOrCreate({ stateName }, { stateName });
   }
 }

@@ -7,7 +7,8 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn
 } from "typeorm";
 import ReserveLevel from "./reserveLevel.model";
 import PlanetRing from "./planetRing.model";
@@ -16,16 +17,19 @@ import PlanetaryBody from "./planetaryBody.model";
 @Entity("ringed_bodies")
 @Index("ringed_body_idx", ["bodyId", "systemAddress"], { unique: true })
 export default class RingedBody extends BaseEntity {
-  @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  public id?: number;
+
+  @Column({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
   /**
    * Many to One with Reserve Level -> level of material reserves
    * in this body's rings
    */
-  @Column({ name: "reserve_level_id", nullable: false })
+  @Column({ name: "reserve_level_id", nullable: true })
   public reserveLevelId?: number;
   @ManyToOne(() => ReserveLevel, (reserveLevel) => reserveLevel.ringedBodies)
   @JoinColumn({ name: "reserve_level_id" })
@@ -39,16 +43,14 @@ export default class RingedBody extends BaseEntity {
   public rings?: PlanetRing[];
 
   @OneToOne(() => PlanetaryBody, (planetaryBody) => planetaryBody.ringedBody)
-  @JoinColumn({
-    name: "body_id",
-    referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "ringed_body_planet_fk"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "ringed_body_planet_fk"
-  })
+  // @JoinColumn({
+  //   name: "body_id",
+  //   referencedColumnName: "bodyId"
+  // })
+  // @JoinColumn({
+  //   name: "system_address",
+  //   referencedColumnName: "systemAddress"
+  // })
   public planet?: PlanetaryBody;
 
   /**

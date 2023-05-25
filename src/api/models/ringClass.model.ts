@@ -13,7 +13,7 @@ export default class RingClass extends BaseEntity {
   public id?: number;
 
   @Column({ name: "class_name", unique: true, nullable: false })
-  public className?: number;
+  public className?: string;
 
   @OneToMany(() => Ring, (ring) => ring.ringClass)
   public rings?: Ring[];

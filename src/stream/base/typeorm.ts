@@ -4,16 +4,17 @@ import { Logger } from "winston";
 
 @Service()
 export default abstract class TypeORMService {
+  protected manager?: EntityManager;
   @Inject("logger")
   protected logger!: Logger;
-  constructor(protected dataSource: DataSource | EntityManager) {}
+  constructor(protected dataSource: DataSource) {}
 
   public async createTransaction<T>(
     data: T,
     transactionHandler: (data: T) => Promise<any>
   ): Promise<void> {
     return this.dataSource.transaction(async (transaction: EntityManager) => {
-      this.dataSource = transaction;
+      this.manager = transaction;
       await transactionHandler(data);
     });
   }
@@ -24,6 +25,6 @@ export default abstract class TypeORMService {
    * @returns An actual repository service.
    */
   public getRepo<T>(repository: Newable<T>): T {
-    return new repository(this.dataSource);
+    return new repository(this.manager || this.dataSource);
   }
 }

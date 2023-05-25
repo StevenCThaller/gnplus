@@ -19,19 +19,17 @@ export default class BeltCluster extends BaseEntity {
   @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
-  @Column({ name: "belt_id", type: "tinyint", unsigned: true })
+  @Column({
+    name: "belt_id",
+    type: "tinyint",
+    unsigned: true
+  })
   public beltId?: number;
 
   @ManyToOne(() => AsteroidBelt, (asteroidBelt) => asteroidBelt.beltClusters)
   @JoinColumn({
     name: "belt_id",
-    referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "asteroid_belt_id"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "asteroid_belt_id"
+    referencedColumnName: "id"
   })
   public belt?: AsteroidBelt;
 }

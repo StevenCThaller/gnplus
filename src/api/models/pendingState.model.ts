@@ -24,7 +24,6 @@ export default class PendingState extends BaseEntity {
     type: "bigint",
     unsigned: true,
     nullable: true
-    // foreignKeyConstraintName: "pending_state_system_faction"
   })
   public systemFactionId?: number;
   @ManyToOne(
@@ -40,7 +39,6 @@ export default class PendingState extends BaseEntity {
    */
   @Column({
     name: "faction_state_id",
-    // foreignKeyConstraintName: "pending_state_faction_state",
     nullable: true
   })
   public factionStateId?: number;

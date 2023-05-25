@@ -7,7 +7,8 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn
 } from "typeorm";
 import Atmosphere from "./atmosphere.model";
 import AtmosphereType from "./atmosphereType.model";
@@ -15,16 +16,24 @@ import AtmosphereComposition from "./atmosphereComposition.model";
 import PlanetaryBody from "./planetaryBody.model";
 
 @Entity("planet_atmospheres")
-// @Index("planet_atmosphere_id", ["bodyId", "systemAddress"], {
-//   unique: true
-// })
 export default class PlanetAtmosphere extends BaseEntity {
-  @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  public id?: number;
+
+  @Column({
+    name: "body_id",
+    type: "tinyint",
+    unsigned: true
+  })
   public bodyId?: number;
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({
+    name: "system_address",
+    type: "bigint",
+    unsigned: true
+  })
   public systemAddress?: number;
 
-  @Column({ name: "atmosphere_type_id" })
+  @Column({ name: "atmosphere_type_id", nullable: true, default: null })
   public atmosphereTypeId?: number;
   @ManyToOne(
     () => AtmosphereType,
@@ -33,11 +42,10 @@ export default class PlanetAtmosphere extends BaseEntity {
   )
   @JoinColumn({
     name: "atmosphere_type_id"
-    // foreignKeyConstraintName: "planet_atmosphere_type_fk"
   })
   public atmosphereType?: AtmosphereType;
 
-  @Column({ name: "atmosphere_id" })
+  @Column({ name: "atmosphere_id", nullable: true, default: null })
   public atmosphereId?: number;
   @ManyToOne(() => Atmosphere, (atmosphere) => atmosphere.planetAtmospheres, {
     cascade: ["insert"],
@@ -45,7 +53,6 @@ export default class PlanetAtmosphere extends BaseEntity {
   })
   @JoinColumn({
     name: "atmosphere_id"
-    // foreignKeyConstraintName: "atmosphere_on_planet"
   })
   public atmosphere?: Atmosphere;
 

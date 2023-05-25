@@ -33,7 +33,7 @@ export default class Ring extends BaseEntity {
   public innerRadius?: number;
   @Column({ name: "outer_radius", type: "float", unsigned: true })
   public outerRadius?: number;
-  @Column({ name: "mass_megatons" })
+  @Column({ name: "mass_megatons", type: "bigint", unsigned: true })
   public massMegatons?: number;
 
   @Column({ name: "ring_class_id" })
@@ -41,17 +41,4 @@ export default class Ring extends BaseEntity {
   @ManyToOne(() => RingClass, (ringClass) => ringClass.rings)
   @JoinColumn({ name: "ring_class_id" })
   public ringClass?: RingClass;
-
-  // @ManyToOne(() => CelestialBody, (celestialBody) => celestialBody.rings)
-  // @JoinColumn({
-  //   name: "body_id",
-  //   referencedColumnName: "bodyId",
-  //   // foreignKeyConstraintName: "ringed_body"
-  // })
-  // @JoinColumn({
-  //   name: "system_address",
-  //   referencedColumnName: "systemAddress",
-  //   // foreignKeyConstraintName: "ringed_body"
-  // })
-  // public ringedBody?: CelestialBody;
 }

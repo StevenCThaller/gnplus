@@ -7,7 +7,9 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Unique
 } from "typeorm";
 import PlanetAtmosphere from "./planetAtmosphere.model";
 import SurfaceMaterial from "./surfaceMaterial.model";
@@ -17,11 +19,25 @@ import PlanetComposition from "./planetComposition.model";
 import RingedBody from "./ringedBody.model";
 
 @Entity("planetary_bodies")
-// @Index("planetary_body_id", ["bodyId", "systemAddress"], { unique: true })
+@Index(["bodyId", "systemAddress"], { unique: true })
 export default class PlanetaryBody extends BaseEntity {
-  @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
+  // @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  // public id?: number;
+
+  @PrimaryColumn({
+    name: "body_id",
+    type: "tinyint",
+    unsigned: true,
+    unique: false,
+    primaryKeyConstraintName: "planet_idx"
+  })
   public bodyId?: number;
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @PrimaryColumn({
+    name: "system_address",
+    type: "bigint",
+    unsigned: true,
+    primaryKeyConstraintName: "planet_idx"
+  })
   public systemAddress?: number;
 
   @Column({ name: "body_name", unique: true, nullable: false })
@@ -30,6 +46,7 @@ export default class PlanetaryBody extends BaseEntity {
   @Column({ name: "planet_class_id" })
   public planetClassId?: number;
   @ManyToOne(() => PlanetClass, (planetClass) => planetClass.planets)
+  @JoinColumn({ name: "planet_class_id" })
   public planetClass?: PlanetClass;
 
   @OneToOne(
@@ -40,12 +57,10 @@ export default class PlanetaryBody extends BaseEntity {
   @JoinColumn({
     name: "body_id",
     referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "surface_details_id"
   })
   @JoinColumn({
     name: "system_address",
     referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "surface_details_id"
   })
   public surfaceDetails?: PlanetarySurfaceDetails;
 
@@ -54,7 +69,6 @@ export default class PlanetaryBody extends BaseEntity {
   @OneToOne(() => PlanetComposition, { nullable: true, cascade: ["insert"] })
   @JoinColumn({
     name: "planet_composition_id"
-    // foreignKeyConstraintName: "planet_composition_id"
   })
   public planetComposition?: PlanetComposition;
 
@@ -66,26 +80,22 @@ export default class PlanetaryBody extends BaseEntity {
   @JoinColumn({
     name: "body_id",
     referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "planet_atmosphere_id"
   })
   @JoinColumn({
     name: "system_address",
     referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "planet_atmosphere_id"
   })
   public planetAtmosphere?: PlanetAtmosphere;
 
   @OneToOne(() => RingedBody, (ringedBody) => ringedBody.planet)
-  @JoinColumn({
-    name: "body_id",
-    referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "ringed_body_id"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "ringed_body_id"
-  })
+  // @JoinColumn({
+  //   name: "body_id",
+  //   referencedColumnName: "bodyId"
+  // })
+  // @JoinColumn({
+  //   name: "system_address",
+  //   referencedColumnName: "systemAddress"
+  // })
   public ringedBody?: RingedBody;
 
   @OneToMany(() => SurfaceMaterial, (surfaceMaterial) => surfaceMaterial.planet)

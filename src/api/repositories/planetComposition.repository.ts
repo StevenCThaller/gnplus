@@ -15,13 +15,15 @@ export default class PlanetCompositionRepository extends BaseRepository<PlanetCo
   }
 
   public async findOneOrCreate(
+    bodyId: number,
+    systemAddress: number,
     ice: number,
     rock: number,
     metal: number
   ): Promise<PlanetComposition> {
     return await super._findOneOrCreate(
-      { ice, rock, metal },
-      { ice, rock, metal }
+      { bodyId, systemAddress },
+      { bodyId, systemAddress, ice, rock, metal }
     );
   }
 }

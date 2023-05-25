@@ -79,14 +79,13 @@ export default class DockedService implements IDockedService {
     const params = toStarSystem(data);
     const coords = await this.findOrCreateSystemCoordinates(data);
 
-    params.systemCoordinates = coords.id as number;
     const repo = new StarSystemRepository(this.manager || this.dataSource);
     const { systemAddress, systemName } = params;
     const starSystem = await repo.findOneOrCreateBase(
       systemAddress,
-      systemName
+      systemName,
+      coords
     );
-    starSystem.systemCoordinates = coords;
     await starSystem.save();
     return starSystem;
   }

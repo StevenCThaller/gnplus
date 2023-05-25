@@ -5,7 +5,6 @@ import { Logger } from "winston";
 import config from "@config/index";
 import FSDJumpHandler from "./fsdjump";
 import DockedService from "./docked";
-import BasicSystemService from "@stream/base/baseSystemHandler";
 import ScanService from "./scan";
 
 @Service()
@@ -59,27 +58,7 @@ export default class StreamService {
             break;
           }
           case "Scan": {
-            if (data.hasOwnProperty("PlanetClass")) {
-              total++;
-              tidalCount += data.hasOwnProperty("TidalLock") ? 1 : 0;
-              this.logger.info(
-                "%s / %s planets have had the TidalLock field.",
-                tidalCount,
-                total
-              );
-              //   if (
-              //     data.hasOwnProperty("SurfaceGravity") &&
-              //     data.hasOwnProperty("SurfacePressure") &&
-              //     data.hasOwnProperty("SurfaceTemperature") &&
-              //     data.hasOwnProperty("TidalLock") &&
-              //     data.hasOwnProperty("Landable") &&
-              //     data.hasOwnProperty("Volcanism") &&
-              //     data.hasOwnProperty("TerraformState")
-              //   )
-              //     this.logger.info("SURFACE DATA ALWAYS TOGETHER");
-              //   else this.logger.info("OK MAYBE IT ISN'T");
-            }
-            // await Container.get(ScanService).handleEvent(data);
+            await Container.get(ScanService).handleEvent(data);
             break;
           }
           default:

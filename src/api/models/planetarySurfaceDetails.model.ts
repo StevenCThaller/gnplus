@@ -6,7 +6,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
-  PrimaryColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn
 } from "typeorm";
 import TerraformState from "./terraformState.model";
 import Volcanism from "./volcanism.model";
@@ -15,9 +16,12 @@ import PlanetaryBody from "./planetaryBody.model";
 @Entity("planetary_surface_details")
 @Index("surface_details_id", ["bodyId", "systemAddress"], { unique: true })
 export default class PlanetarySurfaceDetails extends BaseEntity {
-  @PrimaryColumn({ name: "body_id", type: "tinyint", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  public id?: number;
+
+  @Column({ name: "body_id", type: "tinyint", unsigned: true })
   public bodyId?: number;
-  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
+  @Column({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
   @Column({ name: "mass_em", type: "float" })
@@ -41,8 +45,8 @@ export default class PlanetarySurfaceDetails extends BaseEntity {
     () => PlanetaryBody,
     (planetaryBody) => planetaryBody.surfaceDetails
   )
-  @JoinColumn({ name: "body_id", referencedColumnName: "bodyId" })
-  @JoinColumn({ name: "system_address", referencedColumnName: "systemAddress" })
+  // @JoinColumn({ name: "body_id", referencedColumnName: "bodyId" })
+  // @JoinColumn({ name: "system_address", referencedColumnName: "systemAddress" })
   public planet?: PlanetaryBody;
 
   @ManyToOne(() => Volcanism, (volcanism) => volcanism.surfaces)

@@ -34,12 +34,10 @@ export default class PlanetComposition extends BaseEntity {
   @JoinColumn({
     name: "body_id",
     referencedColumnName: "bodyId"
-    // foreignKeyConstraintName: "planetary_body_id"
   })
   @JoinColumn({
     name: "system_address",
     referencedColumnName: "systemAddress"
-    // foreignKeyConstraintName: "planetary_body_id"
   })
   public planet?: PlanetaryBody;
 }

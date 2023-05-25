@@ -7,7 +7,6 @@ import {
 } from "@api/models";
 import { Service, Inject } from "typedi";
 import BaseRepository, { RepoManager } from "./base.repository";
-import { DataSource, EntityManager } from "typeorm";
 
 @Service()
 export default class CelestialBodyRepository extends BaseRepository<CelestialBody> {

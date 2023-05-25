@@ -49,7 +49,8 @@ export default class StarSystemRepository extends BaseRepository<StarSystem> {
 
   public async findOneOrCreateBase(
     systemAddress: number,
-    systemName: string
+    systemName: string,
+    systemCoordinates: SystemCoordinates
   ): Promise<StarSystem> {
     return super._findOneOrCreate(
       {
@@ -57,7 +58,8 @@ export default class StarSystemRepository extends BaseRepository<StarSystem> {
       },
       {
         systemAddress,
-        systemName
+        systemName,
+        systemCoordinates
       }
     );
   }

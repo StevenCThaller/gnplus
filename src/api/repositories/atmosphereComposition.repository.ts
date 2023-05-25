@@ -15,6 +15,7 @@ export default class AtmosphereCompositionRepository extends BaseRepository<Atmo
   }
 
   public async findOneOrCreate(
+    planetAtmosphereId: number,
     bodyId: number,
     systemAddress: number,
     atmosphereType: AtmosphereType,
@@ -22,7 +23,13 @@ export default class AtmosphereCompositionRepository extends BaseRepository<Atmo
   ): Promise<AtmosphereComposition> {
     return await super._findOneOrCreate(
       { bodyId, systemAddress, atmosphereTypeId: atmosphereType.id },
-      { bodyId, systemAddress, atmosphereTypeId: atmosphereType.id, percent }
+      {
+        bodyId,
+        systemAddress,
+        atmosphereTypeId: atmosphereType.id,
+        planetAtmosphereId,
+        percent
+      }
     );
   }
 }

@@ -25,7 +25,6 @@ export default class SystemConflict extends BaseEntity {
     type: "bigint",
     unsigned: true,
     nullable: true
-    // foreignKeyConstraintName: "system_address_system_conflict"
   })
   public systemAddress?: number;
   @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemConflicts, {
@@ -40,7 +39,6 @@ export default class SystemConflict extends BaseEntity {
    */
   @Column({
     name: "faction_one_id"
-    // foreignKeyConstraintName: "system_conflict_faction_one"
   })
   public factionOneId?: number;
   @OneToOne(
@@ -56,7 +54,6 @@ export default class SystemConflict extends BaseEntity {
    */
   @Column({
     name: "faction_two_id"
-    // foreignKeyConstraintName: "system_conflict_faction_two"
   })
   public factionTwoId?: number;
   @OneToOne(

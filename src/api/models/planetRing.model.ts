@@ -23,15 +23,13 @@ export default class PlanetRing extends BaseEntity {
    * Many to One with Ringed Body -> the body this ring surrounds
    */
   @ManyToOne(() => RingedBody, (ringedBody) => ringedBody.rings)
-  @JoinColumn({
-    name: "body_id",
-    referencedColumnName: "bodyId"
-    // // foreignKeyConstraintName: "ringed_body_id"
-  })
-  @JoinColumn({
-    name: "system_address",
-    referencedColumnName: "systemAddress"
-    // // foreignKeyConstraintName: "ringed_body_id"
-  })
+  // @JoinColumn({
+  //   name: "body_id",
+  //   referencedColumnName: "bodyId"
+  // })
+  // @JoinColumn({
+  //   name: "system_address",
+  //   referencedColumnName: "systemAddress"
+  // })
   public ringedBody?: RingedBody;
 }

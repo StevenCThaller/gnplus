@@ -13,8 +13,8 @@ export default class TerraformState extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id?: number;
 
-  @Column({ name: "class_name", unique: true, nullable: false })
-  public className?: string;
+  @Column({ name: "state_name", unique: true, nullable: false })
+  public stateName?: string;
 
   @OneToMany(
     () => PlanetarySurfaceDetails,
