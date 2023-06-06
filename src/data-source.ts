@@ -9,8 +9,9 @@ export const AppDataSource = new DataSource({
   username: sqlOptions.username,
   password: sqlOptions.password,
   database: sqlOptions.database,
-  entities: ["build/api/models/*.model.{js,ts}"],
+  entities: ["build/models/*.model.{js,ts}"],
   migrations: ["build/database/migrations/*.{js,ts}"],
   subscribers: [],
-  synchronize: false
+  synchronize: false,
+  timezone: "Z"
 });

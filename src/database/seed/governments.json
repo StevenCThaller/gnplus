@@ -1,0 +1,16 @@
+[
+  { "id": 1, "government": "$government_None;", "localisedEN": null, "localisedES": null },
+  { "id": 2, "government": "$government_Democracy;", "localisedEN": null, "localisedES": null },
+  { "id": 3, "government": "$government_Anarchy;", "localisedEN": null, "localisedES": null },
+  { "id": 4, "government": "$government_Dictatorship;", "localisedEN": null, "localisedES": null },
+  { "id": 5, "government": "$government_Cooperative;", "localisedEN": null, "localisedES": null },
+  { "id": 6, "government": "$government_Carrier;", "localisedEN": null, "localisedES": null },
+  { "id": 7, "government": "$government_Patronage;", "localisedEN": null, "localisedES": null },
+  { "id": 8, "government": "$government_Corporate;", "localisedEN": null, "localisedES": null },
+  { "id": 9, "government": "$government_Confederacy;", "localisedEN": null, "localisedES": null },
+  { "id": 10, "government": "$government_Communism;", "localisedEN": null, "localisedES": null },
+  { "id": 11, "government": "$government_Feudal;", "localisedEN": null, "localisedES": null },
+  { "id": 12, "government": "$government_PrisonColony;", "localisedEN": null, "localisedES": null },
+  { "id": 13, "government": "$government_Engineer;", "localisedEN": null, "localisedES": null },
+  { "id": 14, "government": "$government_Theocracy;", "localisedEN": null, "localisedES": null }
+]

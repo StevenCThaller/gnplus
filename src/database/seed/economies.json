@@ -1,0 +1,36 @@
+[
+  { "id": 1, "economyName": "$economy_Agri;", "localisedEN": "Agriculture", "localisedES": null },
+  { "id": 2, "economyName": "$economy_Carrier;", "localisedEN": "Carrier", "localisedES": null },
+  { "id": 3, "economyName": "$economy_Colony;", "localisedEN": "Colony", "localisedES": null },
+  { "id": 4, "economyName": "$economy_Damaged;", "localisedEN": "Damaged", "localisedES": null },
+  {
+    "id": 5,
+    "economyName": "$economy_Engineer;",
+    "localisedEN": "Engineering",
+    "localisedES": null
+  },
+  {
+    "id": 6,
+    "economyName": "$economy_Extraction;",
+    "localisedEN": "Extraction",
+    "localisedES": null
+  },
+  { "id": 7, "economyName": "$economy_HighTech;", "localisedEN": "High Tech", "localisedES": null },
+  {
+    "id": 8,
+    "economyName": "$economy_Industrial;",
+    "localisedEN": "Industrial",
+    "localisedES": null
+  },
+  { "id": 9, "economyName": "$economy_Military;", "localisedEN": "Military", "localisedES": null },
+  { "id": 10, "economyName": "$economy_None;", "localisedEN": "None", "localisedES": null },
+  { "id": 11, "economyName": "$economy_Refinery;", "localisedEN": "Refinery", "localisedES": null },
+  { "id": 12, "economyName": "$economy_Service;", "localisedEN": "Service", "localisedES": null },
+  {
+    "id": 13,
+    "economyName": "$economy_Terraforming;",
+    "localisedEN": "Terraforming",
+    "localisedES": null
+  },
+  { "id": 14, "economyName": "$economy_Tourism;", "localisedEN": "Tourism", "localisedES": null }
+]

@@ -1,0 +1,21 @@
+[
+  { "id": 1, "factionState": "Boom" },
+  { "id": 2, "factionState": "Bust" },
+  { "id": 3, "factionState": "CivilLiberty" },
+  { "id": 4, "factionState": "CivilUnrest" },
+  { "id": 5, "factionState": "CivilWar" },
+  { "id": 6, "factionState": "Drought" },
+  { "id": 7, "factionState": "Election" },
+  { "id": 8, "factionState": "Expansion" },
+  { "id": 9, "factionState": "Famine" },
+  { "id": 10, "factionState": "InfrastructureFailure" },
+  { "id": 11, "factionState": "Investment" },
+  { "id": 12, "factionState": "Lockdown" },
+  { "id": 13, "factionState": "None" },
+  { "id": 14, "factionState": "Outbreak" },
+  { "id": 15, "factionState": "PirateAttack" },
+  { "id": 16, "factionState": "PublicHoliday" },
+  { "id": 18, "factionState": "Retreat" },
+  { "id": 19, "factionState": "Terrorism" },
+  { "id": 20, "factionState": "War" }
+]

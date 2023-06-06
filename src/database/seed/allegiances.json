@@ -1,0 +1,9 @@
+[
+  { "id": 7, "allegiance": "Alliance" },
+  { "id": 4, "allegiance": "Empire" },
+  { "id": 3, "allegiance": "Federation" },
+  { "id": 8, "allegiance": "Guardian" },
+  { "id": 2, "allegiance": "Independent" },
+  { "id": 5, "allegiance": "PilotsFederation" },
+  { "id": 6, "allegiance": "Thargoid" }
+]

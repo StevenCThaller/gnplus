@@ -16,7 +16,7 @@ type DockedStationEconomy = {
   Proportion: number;
 };
 
-type SystemCoordinatesParams = [number, number, number];
+type StarPosParams = [number, number, number];
 
 type DockedData = BasicSystemData & {
   DistFromStarLS: number;
@@ -50,7 +50,7 @@ type DockedData = BasicSystemData & {
   horizons?: boolean;
   odyssey?: boolean;
 };
-type EDDNEvent = DockedData | FSDJumpData;
+type EDDNEvent = DockedData | FSDJumpData | ScanData;
 
 type TrendingStateJump = {
   State: string;
@@ -117,7 +117,7 @@ type FSDJumpData = BasicSystemData & {
   Factions?: SystemFactionJump[];
   PowerplayState?: string;
   Powers?: string[];
-  SystemFaction?: PrimarySystemFaction;
+  SystemFaction?: PrimarySystemFactionJump;
   Conflicts?: SystemConflict[];
   ThargoidWar: ThargoidWar;
 };
@@ -143,7 +143,7 @@ type BarycenterData = {
 type BasicSystemData = {
   SystemAddress: number;
   StarSystem: string;
-  StarPos: SystemCoordinatesParams;
+  StarPos: StarPosParams;
 };
 
 type BasicBodyData = {
@@ -152,7 +152,7 @@ type BasicBodyData = {
   DistanceFromArrivalLS: number;
 };
 
-type BaseScanData = BasicBodyData & BasicSystemData & { timestamp: string };
+type BaseScanData = BasicBodyData & BasicSystemData & { timestamp: string; event: string };
 
 type RotationData = {
   AxialTilt: number;
@@ -174,7 +174,12 @@ type ParentRingData = {
   Ring: number;
 };
 
+type ParentBeltData = {
+  Belt: number;
+};
+
 type ParentData =
+  | ParentBeltData
   | ParentPlanetData
   | ParentStarData
   | ParentBarycenterData
@@ -209,9 +214,7 @@ type StarData = {
 type StarScanData = StarData &
   BaseScanData &
   RotationData &
-  Partial<
-    ParentData & RingedBodyData & OrbitData & BarycenterData & ParentBodyData
-  >;
+  Partial<ParentData & RingedBodyData & OrbitData & BarycenterData & ParentBodyData>;
 
 type PlanetCompositionData = {
   Ice: number;
@@ -265,15 +268,44 @@ type PlanetScanData = PlanetData &
 
 type ScanData = BaseScanData & Partial<PlanetScanData & StarScanData>;
 
-type SurfaceDetailsParams = {
-  bodyId?: number;
-  systemAddress?: number;
-  massEM?: number;
-  tidalLock?: boolean;
-  landable?: boolean;
-  surfaceGravity?: number;
-  surfacePressure?: number;
-  surfaceTemperature?: number;
-  volcanism?: Volcanism;
-  terraformState?: TerraformState;
+type ScanBarycentreData = {
+  AscendingNode: number;
+  BodyID: number;
+  Eccentricity: number;
+  MeanAnomaly: number;
+  OrbitalInclination: number;
+  OrbitalPeriod: number;
+  Periapsis: number;
+  SemiMajorAxis: number;
+  StarPos: [number, number, number];
+  StarSystem: string;
+  SystemAddress: number;
+  timestamp: string;
+};
+
+type CommodityData = {
+  buyPrice: number;
+  demand: number;
+  demandBracket: number;
+  meanPrice: number;
+  name: string;
+  sellPrice: number;
+  stock: number;
+  stockBracket: number;
+  statusFlags?: string[];
+};
+
+type CommodityEconomyData = {
+  name: string;
+  proportion: number;
+};
+
+type CommodityEventData = {
+  marketId: number;
+  stationName: string;
+  systemName: string;
+  commodities: CommodityData[];
+  economies?: CommodityEconomyData[];
+  prohibited?: string[];
+  timestamp: string;
 };

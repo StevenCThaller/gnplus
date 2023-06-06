@@ -1,0 +1,6 @@
+[
+  { "id": 1, "happinessLevel": "--" },
+  { "id": 2, "happinessLevel": "$Faction_HappinessBand1;" },
+  { "id": 3, "happinessLevel": "$Faction_HappinessBand2;" },
+  { "id": 4, "happinessLevel": "$Faction_HappinessBand3;" }
+]

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "module": "CommonJS",   
+    "module": "commonjs",   
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": "./src",
@@ -19,9 +19,11 @@
       "@api/*": ["api/*"],
       "@stream/*": ["stream/*"],
       "@loaders/*": ["loaders/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@services/*": ["services/*"],
+      "@models/*": ["models/*"]
     },
     "noImplicitAny": true           
   },
-  "include": ["src", "src/data-source.ts", "src/database/**/*.ts"],
+  "include": ["src", "src/data-source.ts", "src/database/**/*.ts", "src/database/seed/*.json"],
 }
