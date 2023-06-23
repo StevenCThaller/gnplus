@@ -51,7 +51,7 @@ export default class Station {
   /**
    * Many to One Relationships
    */
-  @Column({ name: "allegiance_id", type: "tinyint", unsigned: true })
+  @Column({ name: "allegiance_id", type: "tinyint", unsigned: true, nullable: true })
   public allegianceId?: number;
   @ManyToOne(() => Allegiance, (allegiance) => allegiance.stations, {
     cascade: ["insert"],
@@ -89,7 +89,7 @@ export default class Station {
   @JoinColumn({ name: "landing_pad_configuration_id" })
   public landingPads?: LandingPadConfig;
 
-  @Column({ name: "station_state_id", type: "tinyint", unsigned: true })
+  @Column({ name: "station_state_id", type: "tinyint", unsigned: true, nullable: true })
   public stationStateId?: number;
   @ManyToOne(() => StationState, (stationState) => stationState.stationsWithThisState, {
     cascade: ["insert"]

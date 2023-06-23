@@ -28,7 +28,8 @@ export default class Government {
   @OneToMany(() => StarSystem, (starSystem) => starSystem.government)
   public systems?: StarSystem[];
 
-  constructor(government: string, localisedEN?: string) {
+  constructor(government?: string, localisedEN?: string) {
+    if (!government) return this;
     this.government = government.startsWith("$government_")
       ? government
       : `$government_${government};`;

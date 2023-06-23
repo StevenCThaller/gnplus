@@ -1,4 +1,12 @@
-import { Entity, ManyToOne, Column, JoinColumn, BaseEntity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  ManyToOne,
+  Column,
+  JoinColumn,
+  BaseEntity,
+  PrimaryGeneratedColumn,
+  Index
+} from "typeorm";
 import Station from "./station.model";
 import Economy from "./economy.model";
 
@@ -7,7 +15,8 @@ export default class StationEconomy {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @Column({ name: "station_id", unsigned: true, nullable: true })
+  @Column({ name: "station_id", unique: false, unsigned: true, nullable: true })
+  @Index()
   public stationId?: number;
 
   @Column({ name: "economy_id", nullable: true })

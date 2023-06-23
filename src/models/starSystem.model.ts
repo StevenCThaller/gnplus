@@ -4,7 +4,6 @@ import {
   Column,
   OneToOne,
   OneToMany,
-  BaseEntity,
   JoinColumn,
   JoinTable,
   ManyToOne,
@@ -25,7 +24,7 @@ import Government from "./government.model";
 import CelestialBody from "./celestialBody.model";
 
 @Entity("star_systems")
-export default class StarSystem extends BaseEntity {
+export default class StarSystem {
   @PrimaryColumn({
     name: "system_address",
     nullable: false,
@@ -92,16 +91,8 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to One with Primary System Faction
    */
-  @Column({
-    name: "primary_faction_id",
-    type: "bigint",
-    unsigned: true,
-    nullable: true,
-    default: null
-  })
-  public primaryFactionId?: number;
-  @OneToOne(() => PrimarySystemFaction, { cascade: ["insert", "update"] })
-  @JoinColumn({ name: "primary_faction_id" })
+  @OneToOne(() => PrimarySystemFaction, { cascade: false, createForeignKeyConstraints: false })
+  @JoinColumn({ name: "system_address" })
   public primaryFaction?: PrimarySystemFaction;
 
   /**
@@ -124,9 +115,7 @@ export default class StarSystem extends BaseEntity {
   /**
    * One to Many with System Factions
    */
-  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.system, {
-    cascade: ["insert"]
-  })
+  @OneToMany(() => SystemFaction, (systemFaction) => systemFaction.system)
   public systemFactions?: SystemFaction[];
 
   /**
@@ -231,6 +220,7 @@ export default class StarSystem extends BaseEntity {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static getBasic(data: any): StarSystemParams {
     return {
       systemAddress: data.SystemAddress,
@@ -239,5 +229,22 @@ export default class StarSystem extends BaseEntity {
       createdAt: new Date(data.timestamp),
       updatedAt: new Date(data.timestamp)
     };
+  }
+
+  constructor(
+    systemAddress: number,
+    starSystem: string,
+    systemCoordinatesId: number,
+    timestamp?: Date,
+    population?: number
+  ) {
+    this.systemAddress = systemAddress;
+    this.systemName = starSystem;
+    this.systemCoordinatesId = systemCoordinatesId;
+    if (timestamp) {
+      this.createdAt = timestamp;
+      this.updatedAt = timestamp;
+      if (population != null) this.population = population;
+    }
   }
 }

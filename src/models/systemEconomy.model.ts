@@ -1,10 +1,7 @@
 import {
   Entity,
-  PrimaryColumn,
   Column,
-  OneToOne,
   OneToMany,
-  BaseEntity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,7 +12,7 @@ import Economy from "./economy.model";
 
 @Entity("system_economies")
 @Index(["primaryEconomyId", "secondaryEconomyId"])
-export default class SystemEconomy extends BaseEntity {
+export default class SystemEconomy {
   @PrimaryGeneratedColumn({ unsigned: true, type: "bigint" })
   public id?: number;
 
@@ -45,5 +42,12 @@ export default class SystemEconomy extends BaseEntity {
       primaryEconomy: data.SystemEconomy,
       secondaryEconomy: data.SystemSecondEconomy
     };
+  }
+
+  constructor(primaryEconomyId: number, secondaryEconomyId?: number) {
+    if (!primaryEconomyId && !secondaryEconomyId) return this;
+
+    this.primaryEconomyId = primaryEconomyId;
+    this.secondaryEconomyId = secondaryEconomyId;
   }
 }

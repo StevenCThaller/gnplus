@@ -1,11 +1,8 @@
 import { Container } from "typedi";
 import LoggerInstance from "./logger";
-import EDDNService from "@stream/services/eddn";
 import { AppDataSource } from "@datasource";
-import fs from "fs";
-import path from "path";
 
-export default async function ({ models }: any): Promise<void> {
+export default async function (): Promise<void> {
   try {
     Container.set("dataSource", AppDataSource);
     Container.set("logger", LoggerInstance);

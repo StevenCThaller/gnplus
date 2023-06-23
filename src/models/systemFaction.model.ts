@@ -2,9 +2,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   ManyToOne,
-  BaseEntity,
   JoinColumn,
   Index,
   ManyToMany,
@@ -21,7 +19,7 @@ import HappinessLevel from "./happinessLevel.model";
 
 @Entity("system_factions")
 @Index(["systemAddress", "factionId"])
-export default class SystemFaction extends BaseEntity {
+export default class SystemFaction {
   @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id?: number;
 
@@ -49,9 +47,7 @@ export default class SystemFaction extends BaseEntity {
    */
   @Column({ name: "faction_id", nullable: true })
   public factionId?: number;
-  @ManyToOne(() => Faction, (faction) => faction.systemFactions, {
-    cascade: ["insert"]
-  })
+  @ManyToOne(() => Faction, (faction) => faction.systemFactions, { cascade: false })
   @JoinColumn({ name: "faction_id" })
   public faction?: Faction;
 
@@ -60,9 +56,7 @@ export default class SystemFaction extends BaseEntity {
    */
   @Column({ name: "allegiance_id", type: "tinyint", unsigned: true, nullable: true })
   public allegianceId?: number;
-  @ManyToOne(() => Allegiance, (allegiance) => allegiance.systemFactions, {
-    cascade: ["insert"]
-  })
+  @ManyToOne(() => Allegiance, (allegiance) => allegiance.systemFactions)
   @JoinColumn({ name: "allegiance_id" })
   public allegiance?: Allegiance;
 
@@ -71,9 +65,7 @@ export default class SystemFaction extends BaseEntity {
    */
   @Column({ name: "faction_state_id", type: "tinyint", unsigned: true, nullable: true })
   public factionStateId?: number;
-  @ManyToOne(() => FactionState, (factionState) => factionState.systemFactions, {
-    cascade: ["insert", "update"]
-  })
+  @ManyToOne(() => FactionState, (factionState) => factionState.systemFactions)
   @JoinColumn({ name: "faction_state_id" })
   public factionState?: FactionState;
 
@@ -82,9 +74,7 @@ export default class SystemFaction extends BaseEntity {
    */
   @Column({ name: "government_id", type: "tinyint", unsigned: true, nullable: true })
   public governmentId?: number;
-  @ManyToOne(() => Government, (government) => government.systemFactions, {
-    cascade: ["insert", "update"]
-  })
+  @ManyToOne(() => Government, (government) => government.systemFactions)
   @JoinColumn({ name: "government_id" })
   public government?: Government;
 
@@ -100,7 +90,9 @@ export default class SystemFaction extends BaseEntity {
   /**
    * Many to Many with FactionState - Active States
    */
-  @ManyToMany(() => FactionState, (factionState) => factionState.activeStateSystemFactions)
+  @ManyToMany(() => FactionState, (factionState) => factionState.activeStateSystemFactions, {
+    cascade: ["update"]
+  })
   @JoinTable({
     name: "faction_has_active_states",
     joinColumn: {
@@ -182,5 +174,26 @@ export default class SystemFaction extends BaseEntity {
         )
       })
     );
+  }
+
+  /**
+   *
+   */
+  constructor(
+    systemAddress: number,
+    factionId: number,
+    allegianceId: number,
+    happinessLevelId: number,
+    governmentId: number,
+    influence: number,
+    factionStateId?: number
+  ) {
+    this.systemAddress = systemAddress;
+    this.factionId = factionId;
+    this.allegianceId = allegianceId;
+    this.happinessLevelId = happinessLevelId;
+    this.governmentId = governmentId;
+    this.influence = influence;
+    this.factionStateId = factionStateId;
   }
 }

@@ -1,0 +1,8 @@
+[
+  { "id": 1, "bodyType": "Barycenter" },
+  { "id": 2, "bodyType": "Star" },
+  { "id": 3, "bodyType": "Planet" },
+  { "id": 4, "bodyType": "AsteroidBelt" },
+  { "id": 5, "bodyType": "BeltCluster" },
+  { "id": 6, "bodyType": "Ring" }
+]

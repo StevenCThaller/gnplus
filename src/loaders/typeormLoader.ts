@@ -5,7 +5,7 @@ import { AppDataSource } from "@datasource";
 
 export default async function (): Promise<DataSource> {
   try {
-    let ret = await AppDataSource.initialize();
+    const ret = await AppDataSource.initialize();
     Logger.info("TypeORM successfully connected.");
 
     return ret;

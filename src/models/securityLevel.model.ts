@@ -1,16 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  Index,
-  JoinTable,
-  BaseEntity
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import StarSystem from "./starSystem.model";
 
 @Entity("security_levels")
-export default class SecurityLevel extends BaseEntity {
+export default class SecurityLevel {
   @PrimaryGeneratedColumn()
   public id?: number;
 

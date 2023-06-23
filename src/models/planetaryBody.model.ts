@@ -19,7 +19,7 @@ import CelestialBody from "./celestialBody.model";
 
 @Entity("planetary_bodies")
 @Index(["bodyId", "systemAddress"], { unique: true })
-export default class PlanetaryBody extends BaseEntity {
+export default class PlanetaryBody {
   @PrimaryColumn({
     name: "body_id",
     type: "smallint",
@@ -97,5 +97,10 @@ export default class PlanetaryBody extends BaseEntity {
       ringedBody: RingedBody.convertScan(data),
       surfaceMaterials: SurfaceMaterial.convertScan(data)
     };
+  }
+
+  constructor(bodyId: number, systemAddress: number) {
+    this.bodyId = bodyId;
+    this.systemAddress = systemAddress;
   }
 }

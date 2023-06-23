@@ -1,9 +1,9 @@
-import { Entity, Column, Index, PrimaryGeneratedColumn, BaseEntity, OneToMany } from "typeorm";
+import { Entity, Column, Index, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import StarSystem from "./starSystem.model";
 
 @Entity("system_coordinates")
 @Index("position_coords_idx", ["x", "y", "z"], { unique: false })
-export default class SystemCoordinates extends BaseEntity {
+export default class SystemCoordinates {
   @PrimaryGeneratedColumn()
   public id?: number;
 
@@ -30,5 +30,14 @@ export default class SystemCoordinates extends BaseEntity {
   private static convertArray(xyz: number[]): SystemCoordinatesParams {
     const [x, y, z] = xyz;
     return { x, y, z };
+  }
+
+  /**
+   *
+   */
+  constructor(x: number, y: number, z: number) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
 }

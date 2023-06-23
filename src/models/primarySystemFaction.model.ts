@@ -1,20 +1,18 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import Faction from "./faction.model";
 import FactionState from "./factionState.model";
 
 @Entity("primary_system_factions")
-export default class PrimarySystemFaction extends BaseEntity {
-  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
-  public id?: number;
+export default class PrimarySystemFaction {
+  // @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
+  // public id?: number;
 
   /**
    * One to One with System
    */
-  @Column({
+  @PrimaryColumn({
     name: "system_address",
     type: "bigint",
-    unique: true,
-    nullable: true,
     unsigned: true
   })
   public systemAddress?: number;
@@ -25,7 +23,7 @@ export default class PrimarySystemFaction extends BaseEntity {
   @Column({ name: "faction_id" })
   public factionId?: number;
   @ManyToOne(() => Faction, (faction) => faction.systemsWithPrimary, {
-    cascade: ["insert", "update"],
+    cascade: false,
     createForeignKeyConstraints: false
   })
   @JoinColumn({ name: "faction_id" })
@@ -68,5 +66,13 @@ export default class PrimarySystemFaction extends BaseEntity {
       createdAt: new Date(data.timestamp),
       updatedAt: new Date(data.timestamp)
     };
+  }
+
+  constructor(systemAddress: number, factionId: number, factionStateId?: number) {
+    if (!systemAddress) return this;
+
+    this.systemAddress = systemAddress;
+    this.factionId = factionId;
+    this.factionStateId = factionStateId;
   }
 }

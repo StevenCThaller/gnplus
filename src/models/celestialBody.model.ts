@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   Entity,
   Index,
@@ -18,7 +17,7 @@ import Ring from "./ring.model";
 
 @Entity("celestial_bodies")
 @Index("celestial_body_id", ["bodyId", "systemAddress"], { unique: true })
-export default class CelestialBody extends BaseEntity {
+export default class CelestialBody {
   /**
    * Composite Primary key
    */
@@ -147,5 +146,22 @@ export default class CelestialBody extends BaseEntity {
       createdAt: new Date(data.timestamp),
       updatedAt: new Date(data.timestamp)
     };
+  }
+
+  constructor(
+    bodyId: number,
+    systemAddress: number,
+    bodyName: string,
+    distanceFromArrival: number,
+    bodyTypeId: number,
+    timestamp: string
+  ) {
+    this.bodyId = bodyId;
+    this.systemAddress = systemAddress;
+    this.bodyName = bodyName;
+    this.distanceFromArrival = distanceFromArrival;
+    this.bodyTypeId = bodyTypeId;
+    this.createdAt = new Date(timestamp);
+    this.updatedAt = new Date(timestamp);
   }
 }

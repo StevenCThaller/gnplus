@@ -1,0 +1,3 @@
+[submodule "src/galnet-plus-models"]
+	path = src/galnet-plus-models
+	url = git@github.com:StevenCThaller/galnet-plus-models.git

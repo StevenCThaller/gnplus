@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import Station from "./station.model";
 
 @Entity("station_states")
-export default class StationState extends BaseEntity {
+export default class StationState {
   @PrimaryGeneratedColumn({ type: "tinyint", unsigned: true })
   public id?: number;
 
@@ -11,4 +11,10 @@ export default class StationState extends BaseEntity {
 
   @OneToMany(() => Station, (station) => station.stationState)
   public stationsWithThisState?: Station[];
+
+  constructor(stationState: string) {
+    if (!stationState) return this;
+
+    this.stationState = stationState;
+  }
 }
