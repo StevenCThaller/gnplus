@@ -14,8 +14,9 @@ import SurfaceMaterial from "./surfaceMaterial.model";
 import PlanetClass from "./planetClass.model";
 import PlanetarySurfaceDetails from "./planetarySurfaceDetails.model";
 import PlanetComposition from "./planetComposition.model";
-import RingedBody from "./ringedBody.model";
+// import RingedBody from "./ringedBody.model";
 import CelestialBody from "./celestialBody.model";
+import SignalOnPlanet from "./signalOnPlanet.model";
 
 @Entity("planetary_bodies")
 @Index(["bodyId", "systemAddress"], { unique: true })
@@ -74,8 +75,8 @@ export default class PlanetaryBody {
   ])
   public planetAtmosphere?: PlanetAtmosphere;
 
-  @OneToOne(() => RingedBody, (ringedBody) => ringedBody.planet)
-  public ringedBody?: RingedBody;
+  // @OneToOne(() => RingedBody, (ringedBody) => ringedBody.planet)
+  // public ringedBody?: RingedBody;
 
   @OneToOne(() => CelestialBody)
   @JoinColumn([
@@ -83,6 +84,9 @@ export default class PlanetaryBody {
     { name: "system_address", referencedColumnName: "systemAddress" }
   ])
   public body?: CelestialBody;
+
+  @OneToMany(() => SignalOnPlanet, (signal) => signal.planet)
+  public signals?: SignalOnPlanet[];
 
   @OneToMany(() => SurfaceMaterial, (surfaceMaterial) => surfaceMaterial.planet)
   public surfaceMaterials?: SurfaceMaterial[];
@@ -94,7 +98,7 @@ export default class PlanetaryBody {
       planetAtmosphere: PlanetAtmosphere.convertScan(data),
       planetComposition: PlanetComposition.convertScan(data),
       surfaceDetails: PlanetarySurfaceDetails.convertScan(data),
-      ringedBody: RingedBody.convertScan(data),
+      // ringedBody: RingedBody.convertScan(data),
       surfaceMaterials: SurfaceMaterial.convertScan(data)
     };
   }

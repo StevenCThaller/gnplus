@@ -5,7 +5,9 @@ import {
   OneToOne,
   Column,
   JoinColumn,
-  BaseEntity
+  BaseEntity,
+  Index,
+  PrimaryColumn
 } from "typeorm";
 import StarSystem from "./starSystem.model";
 import ConflictFaction from "./conflictFaction.model";
@@ -13,18 +15,15 @@ import ConflictStatus from "./conflictStatus.model";
 import ConflictWarType from "./conflictWarType.model";
 
 @Entity("system_conflicts")
-export default class SystemConflict extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  public id?: number;
-
+@Index("system_conflict_id", ["systemAddress", "factionOneId", "factionTwoId"], { unique: true })
+export default class SystemConflict {
   /**
    * Many to One with Star System
    */
-  @Column({
+  @PrimaryColumn({
     name: "system_address",
     type: "bigint",
-    unsigned: true,
-    nullable: true
+    unsigned: true
   })
   public systemAddress?: number;
   @ManyToOne(() => StarSystem, (starSystem) => starSystem.systemConflicts, {
@@ -37,7 +36,7 @@ export default class SystemConflict extends BaseEntity {
   /**
    * One to One with First Conflict Faction
    */
-  @Column({
+  @PrimaryColumn({
     name: "faction_one_id"
   })
   public factionOneId?: number;
@@ -51,7 +50,7 @@ export default class SystemConflict extends BaseEntity {
   /**
    * One to One with Second Conflict Faction
    */
-  @Column({
+  @PrimaryColumn({
     name: "faction_two_id"
   })
   public factionTwoId?: number;
@@ -117,5 +116,19 @@ export default class SystemConflict extends BaseEntity {
         updatedAt: new Date(data.timestamp)
       })
     );
+  }
+
+  constructor(
+    systemAddress: number,
+    factionOneId: number,
+    factionTwoId: number,
+    conflictStatusId: number,
+    warTypeId: number
+  ) {
+    this.systemAddress = systemAddress;
+    this.factionOneId = factionOneId;
+    this.factionTwoId = factionTwoId;
+    this.conflictStatusId = conflictStatusId;
+    this.warTypeId = warTypeId;
   }
 }

@@ -26,24 +26,15 @@ export default class MarketService {
 
   constructor(@Inject() queryService: QueryService, @Inject("logger") logger: Logger) {
     this.queryService = queryService;
-    // this.marketPriceRepository = queryService.getEntityManager().getRepository(MarketPrice);
-    // this.marketRepository = queryService.getEntityManager().getRepository(Market);
-    // this.commodityRepository = queryService.getEntityManager().getRepository(Commodity);
-    // this.statusFlagRepository = queryService.getEntityManager().getRepository(StatusFlag);
-    // this.galacticAverageRepository = queryService
-    //   .getEntityManager()
-    //   .getRepository(GalacticAverage);
-    // this.currentMarketPriceRepository = queryService
-    //   .getEntityManager()
-    //   .getRepository(CurrentMarketPrice);
     this.logger = logger;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getCurrentCommodityPrices(): Promise<any> {
-    return this.queryService.transaction(async (transaction: EntityManager): Promise<any> => {
-      // this.setRepositories(transaction);
-
-      const query = transaction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.queryService.transaction(async (): Promise<any> => {
+      const query = this.queryService
+        .getEntityManager()
         .createQueryBuilder()
         .select("current_market_prices.commodity_id")
         .addSelect("commodities.commodity", "commodity")
@@ -68,6 +59,7 @@ export default class MarketService {
         .groupBy("current_market_prices.commodity_id");
       const results = await query.getRawMany();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return results.map((result: any): any => {
         result.buyPrice = Math.round(Number(result.buyPrice));
         result.sellPrice = Math.round(Number(result.sellPrice));
@@ -81,12 +73,12 @@ export default class MarketService {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getCurrentMarket(marketId: number): Promise<any> {
-    return this.queryService.transaction(async (transaction: EntityManager) => {
-      // this.setRepositories(transaction);
-
+    return this.queryService.transaction(async () => {
       console.time("getCurrentMarket");
-      const query = transaction
+      const query = this.queryService
+        .getEntityManager()
         .createQueryBuilder()
         .select("market_prices.market_id", "marketId")
         .addSelect("market_prices.commodity_id", "commodityId")
@@ -123,10 +115,8 @@ export default class MarketService {
   }
 
   public async updateOrCreateMarket(marketData: CommodityEventData): Promise<void> {
-    return this.queryService.transaction(async (transaction: EntityManager) => {
-      this.setRepositories(transaction);
-
-      const repo: Repository<Market> = transaction.getRepository(Market);
+    return this.queryService.transaction(async () => {
+      const repo: Repository<Market> = this.queryService.getRepository(Market);
 
       let market: Market | null = await repo.findOne({
         where: { id: marketData.marketId }
@@ -134,24 +124,20 @@ export default class MarketService {
 
       if (!market) {
         market = new Market(marketData.marketId, new Date(marketData.timestamp));
-        this.logger.info("New market %s", marketData.marketId);
+        // this.logger.info("New market %s", marketData.marketId);
       } else {
         market.updatedAt = new Date(marketData.timestamp);
       }
 
-      await this.upsertProhibitedItems(market, marketData.prohibited, transaction);
+      await this.upsertProhibitedItems(market, marketData.prohibited);
 
       await repo.save(market);
 
-      await this.bulkCreateMarketPrices(marketData.marketId, marketData.commodities, transaction);
+      await this.bulkCreateMarketPrices(marketData.marketId, marketData.commodities);
     });
   }
 
-  private async upsertProhibitedItems(
-    market: Market,
-    prohibitedItems?: string[],
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertProhibitedItems(market: Market, prohibitedItems?: string[]): Promise<void> {
     if (!prohibitedItems || prohibitedItems.length === 0) {
       market.prohibitedItems = [];
       return;
@@ -160,7 +146,7 @@ export default class MarketService {
     const prohibiteItemRecords: ProhibitedItem[] = await Promise.all(
       prohibitedItems.map(
         async (itemName: string): Promise<ProhibitedItem> =>
-          await this.queryService.findOrCreateEntity(ProhibitedItem, { itemName }, entityManager)
+          await this.queryService.findOrCreateEntity(ProhibitedItem, { itemName })
       )
     );
 
@@ -169,16 +155,14 @@ export default class MarketService {
 
   private async bulkCreateMarketPrices(
     marketId: number,
-    marketPriceDataArr: CommodityData[],
-    entityManager?: EntityManager
+    marketPriceDataArr: CommodityData[]
   ): Promise<MarketPrice[]> {
     const marketPrices: MarketPrice[] = [];
 
     for (const marketPriceData of marketPriceDataArr) {
       const marketPriceRecord: MarketPrice = await this.createMarketPrice(
         marketId,
-        marketPriceData,
-        entityManager
+        marketPriceData
       );
       marketPrices.push(marketPriceRecord);
     }
@@ -188,11 +172,9 @@ export default class MarketService {
   private async updateCurrentMarketPrice(
     marketId: number,
     commodityId: number,
-    marketPriceId: number,
-    entityManager?: EntityManager
+    marketPriceId: number
   ): Promise<CurrentMarketPrice> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo = entityManager.getRepository(CurrentMarketPrice);
+    const repo = this.queryService.getRepository(CurrentMarketPrice);
     try {
       let currentMarketPriceRecord = await repo.findOne({
         where: { marketId, commodityId }
@@ -216,11 +198,9 @@ export default class MarketService {
 
   private async updateGalacticAvg(
     commodityId: number,
-    meanPrice: number,
-    entityManager?: EntityManager
+    meanPrice: number
   ): Promise<GalacticAverage> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<GalacticAverage> = entityManager.getRepository(GalacticAverage);
+    const repo: Repository<GalacticAverage> = this.queryService.getRepository(GalacticAverage);
     try {
       let galacticAvgRecord = await repo.findOne({
         where: { commodityId }
@@ -244,16 +224,14 @@ export default class MarketService {
 
   private async createMarketPrice(
     marketId: number,
-    marketPriceData: CommodityData,
-    entityManager?: EntityManager
+    marketPriceData: CommodityData
   ): Promise<MarketPrice> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<MarketPrice> = entityManager.getRepository(MarketPrice);
+    const repo: Repository<MarketPrice> = this.queryService.getRepository(MarketPrice);
 
     const commodityName = marketPriceData.name;
     const statusFlags: string[] | undefined = marketPriceData.statusFlags;
 
-    const commodity = await this.findOrCreateCommodity(commodityName, statusFlags, entityManager);
+    const commodity = await this.findOrCreateCommodity(commodityName, statusFlags);
     const commodityId = commodity.id;
 
     const marketPrice = new MarketPrice();
@@ -269,28 +247,17 @@ export default class MarketService {
 
     await repo.save(marketPrice);
 
-    await this.updateGalacticAvg(commodityId, marketPriceData.meanPrice, entityManager);
-    await this.updateCurrentMarketPrice(marketId, commodityId, marketPrice.id, entityManager);
+    await this.updateGalacticAvg(commodityId, marketPriceData.meanPrice);
+    await this.updateCurrentMarketPrice(marketId, commodityId, marketPrice.id);
 
     return marketPrice;
   }
 
-  private setRepositories(entityManager: EntityManager): void {
-    // this.commodityRepository = entityManager.getRepository(Commodity);
-    // this.statusFlagRepository = entityManager.getRepository(StatusFlag);
-    // this.marketPriceRepository = entityManager.getRepository(MarketPrice);
-    // this.marketRepository = entityManager.getRepository(Market);
-    // this.galacticAverageRepository = entityManager.getRepository(GalacticAverage);
-    // this.currentMarketPriceRepository = entityManager.getRepository(CurrentMarketPrice);
-  }
-
   private async findOrCreateCommodity(
     commodity: string,
-    statusFlags?: string[],
-    entityManager?: EntityManager
+    statusFlags?: string[]
   ): Promise<Commodity> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<Commodity> = entityManager.getRepository(Commodity);
+    const repo: Repository<Commodity> = this.queryService.getRepository(Commodity);
     let commodityRecord: Commodity | null = await repo.findOne({
       where: { commodity }
     });
@@ -301,8 +268,7 @@ export default class MarketService {
       commodityRecord.statusFlags = statusFlags
         ? await Promise.all(
             statusFlags.map(
-              (flag: string): Promise<StatusFlag> =>
-                this.findOrCreateStatusFlag(flag, entityManager)
+              (flag: string): Promise<StatusFlag> => this.findOrCreateStatusFlag(flag)
             )
           )
         : [];
@@ -315,12 +281,8 @@ export default class MarketService {
     return commodityRecord;
   }
 
-  private async findOrCreateStatusFlag(
-    flag: string,
-    entityManager?: EntityManager
-  ): Promise<StatusFlag> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<StatusFlag> = entityManager.getRepository(StatusFlag);
+  private async findOrCreateStatusFlag(flag: string): Promise<StatusFlag> {
+    const repo: Repository<StatusFlag> = this.queryService.getRepository(StatusFlag);
     let statusFlagRecord: StatusFlag | null = await repo.findOne({
       where: { flag }
     });

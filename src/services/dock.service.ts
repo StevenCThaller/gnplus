@@ -10,6 +10,7 @@ import {
   LandingPadConfig,
   Market,
   ServiceOffered,
+  StarSystem,
   Station,
   StationEconomy,
   StationFaction,
@@ -28,8 +29,8 @@ export default class DockService {
   ) {}
 
   public async updateOrCreateStation(stationData: DockedData): Promise<void> {
-    return this.queryService.transaction(async (transaction: EntityManager) => {
-      const repo: Repository<Station> = transaction.getRepository(Station);
+    return this.queryService.transaction(async () => {
+      const repo: Repository<Station> = this.queryService.getRepository(Station);
 
       let stationRecord: Station | null = await repo.findOne({
         relations: {
@@ -54,8 +55,7 @@ export default class DockService {
             id: stationData.MarketID,
             createdAt: stationData.timestamp,
             updatedAt: stationData.timestamp
-          },
-          transaction
+          }
         );
         stationRecord = new Station(
           stationData.MarketID,
@@ -68,51 +68,37 @@ export default class DockService {
       }
 
       await Promise.all([
-        this.upsertStationAllegiance(stationRecord, stationData.StationAllegiance, transaction),
-        this.upsertStationGovernment(stationRecord, stationData.StationGovernment, transaction),
-        this.upsertStationType(stationRecord, stationData.StationType, transaction),
-        this.upsertLandingPadConfig(stationRecord, stationData.LandingPads, transaction),
-        this.upsertStationState(stationRecord, stationData.StationState, transaction),
-        this.upsertStationSystem(
-          stationRecord,
-          stationData.SystemAddress,
-          stationData.StarSystem,
-          stationData.StarPos,
-          stationData.timestamp,
-          transaction
-        ),
-        this.upsertStationFaction(stationRecord, stationData.StationFaction, transaction)
+        this.upsertStationAllegiance(stationRecord, stationData.StationAllegiance),
+        this.upsertStationGovernment(stationRecord, stationData.StationGovernment),
+        this.upsertStationType(stationRecord, stationData.StationType),
+        this.upsertLandingPadConfig(stationRecord, stationData.LandingPads),
+        this.upsertStationState(stationRecord, stationData.StationState),
+        this.upsertStationSystem(stationRecord, stationData),
+        this.upsertStationFaction(stationRecord, stationData.StationFaction)
       ]);
       // this.logger.info("Station so far: %o", stationRecord);
 
       await repo.save(stationRecord);
 
       await Promise.all([
-        this.upsertStationEconomies(stationRecord, stationData.StationEconomies, transaction),
-        this.upsertStationServices(stationRecord, stationData.StationServices, transaction)
+        this.upsertStationEconomies(stationRecord, stationData.StationEconomies),
+        this.upsertStationServices(stationRecord, stationData.StationServices)
       ]);
     });
   }
 
-  private async upsertStationAllegiance(
-    station: Station,
-    allegiance?: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertStationAllegiance(station: Station, allegiance?: string): Promise<void> {
     if (!allegiance) return;
 
-    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(
-      Allegiance,
-      { allegiance },
-      entityManager
-    );
+    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(Allegiance, {
+      allegiance
+    });
     station.allegianceId = allegianceRecord.id;
   }
 
   private async upsertStationEconomies(
     station: Station,
-    stationEconomyData?: DockedStationEconomy[],
-    entityManager?: EntityManager
+    stationEconomyData?: DockedStationEconomy[]
   ): Promise<void> {
     if (!stationEconomyData || stationEconomyData.length === 0) {
       station.stationEconomies = [];
@@ -124,8 +110,7 @@ export default class DockService {
       const stationEconomyRecord: StationEconomy = await this.findOrCreateStationEconomy(
         station.id,
         stationEconomy.Name,
-        stationEconomy.Proportion,
-        entityManager
+        stationEconomy.Proportion
       );
       stationEconomyRecords.push(stationEconomyRecord);
     }
@@ -133,8 +118,7 @@ export default class DockService {
 
   private async upsertStationFaction(
     station: Station,
-    stationFactionData: DockedStationFaction,
-    entityManager?: EntityManager
+    stationFactionData: DockedStationFaction
   ): Promise<void> {
     if (!stationFactionData) return;
 
@@ -147,33 +131,22 @@ export default class DockService {
     ) {
       const stationFactionRecord: StationFaction = await this.findOrCreateStationFaction(
         factionName,
-        factionState,
-        entityManager
+        factionState
       );
       station.stationFactionId = stationFactionRecord.id;
     }
   }
 
-  private async upsertStationGovernment(
-    station: Station,
-    government: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertStationGovernment(station: Station, government: string): Promise<void> {
     if (!government) return;
 
-    const governmentRecord: Government = await this.queryService.findOrCreateEntity(
-      Government,
-      { government },
-      entityManager
-    );
+    const governmentRecord: Government = await this.queryService.findOrCreateEntity(Government, {
+      government
+    });
     station.governmentId = governmentRecord.id;
   }
 
-  private async upsertStationServices(
-    station: Station,
-    servicesOffered: string[],
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertStationServices(station: Station, servicesOffered: string[]): Promise<void> {
     if (!servicesOffered || servicesOffered.length === 0) {
       station.servicesAvailable = [];
       return;
@@ -181,72 +154,46 @@ export default class DockService {
     const serviceOfferedRecords: ServiceOffered[] = await Promise.all(
       servicesOffered.map(
         async (service: string): Promise<ServiceOffered> =>
-          await this.queryService.findOrCreateEntity(ServiceOffered, { service }, entityManager)
+          await this.queryService.findOrCreateEntity(ServiceOffered, { service })
       )
     );
 
     station.servicesAvailable = serviceOfferedRecords;
   }
 
-  private async upsertStationType(
-    station: Station,
-    stationType: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertStationType(station: Station, stationType: string): Promise<void> {
     if (!stationType) return;
 
-    const stationTypeRecord: StationType = await this.queryService.findOrCreateEntity(
-      StationType,
-      { stationType },
-      entityManager
-    );
+    const stationTypeRecord: StationType = await this.queryService.findOrCreateEntity(StationType, {
+      stationType
+    });
 
     station.stationTypeId = stationTypeRecord.id;
   }
 
   private async upsertLandingPadConfig(
     stationRecord: Station,
-    landingPads?: DockedLandingPads,
-    entityManager?: EntityManager
+    landingPads?: DockedLandingPads
   ): Promise<void> {
     if (!landingPads) return;
 
     const landingPadRecord: LandingPadConfig = await this.queryService.findOrCreateEntity(
       LandingPadConfig,
-      { small: landingPads.Small, medium: landingPads.Medium, large: landingPads.Large },
-      entityManager
+      { small: landingPads.Small, medium: landingPads.Medium, large: landingPads.Large }
     );
 
     stationRecord.landingPadId = landingPadRecord.id;
   }
 
-  private async upsertStationSystem(
-    station: Station,
-    systemAddress: number,
-    starSystem: string,
-    starPos: number[],
-    timestamp: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
-    await this.queryService.findOrCreateBaseStarSystem(
-      systemAddress,
-      starSystem,
-      starPos,
-      timestamp,
-      entityManager
-    );
+  private async upsertStationSystem(station: Station, dockedData: DockedData): Promise<void> {
+    await this.queryService.findOrInsertBaseStarSystem(StarSystem.convertDocked(dockedData));
 
-    station.systemAddress = systemAddress;
+    station.systemAddress = dockedData.SystemAddress;
   }
 
-  private async upsertStationState(
-    station: Station,
-    stationState?: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertStationState(station: Station, stationState?: string): Promise<void> {
     if (!stationState) return;
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<StationState> = entityManager.getRepository(StationState);
+    const repo: Repository<StationState> = this.queryService.getRepository(StationState);
 
     let record: StationState | null = await repo.findOne({ where: { stationState } });
 
@@ -261,11 +208,9 @@ export default class DockService {
   public async findOrCreateStationEconomy(
     stationId: number,
     economyName: string,
-    proportion: number,
-    entityManager?: EntityManager
+    proportion: number
   ): Promise<StationEconomy> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<StationEconomy> = entityManager.getRepository(StationEconomy);
+    const repo: Repository<StationEconomy> = this.queryService.getRepository(StationEconomy);
 
     let stationEconomyRecord: StationEconomy | null = await repo.findOne({
       relations: { economy: true },
@@ -273,18 +218,14 @@ export default class DockService {
     });
 
     if (!stationEconomyRecord) {
-      const economyRecord: Economy = await this.queryService.findOrCreateEntity(
-        Economy,
-        { economyName },
-        entityManager
-      );
+      const economyRecord: Economy = await this.queryService.findOrCreateEntity(Economy, {
+        economyName
+      });
       stationEconomyRecord = new StationEconomy(stationId, economyRecord.id, proportion);
     } else if (stationEconomyRecord.economy?.economyName !== economyName) {
-      const economyRecord: Economy = await this.queryService.findOrCreateEntity(
-        Economy,
-        { economyName },
-        entityManager
-      );
+      const economyRecord: Economy = await this.queryService.findOrCreateEntity(Economy, {
+        economyName
+      });
       stationEconomyRecord.economyId = economyRecord.id;
     } else {
       return stationEconomyRecord;
@@ -296,11 +237,9 @@ export default class DockService {
 
   public async findOrCreateStationFaction(
     factionName: string,
-    factionState?: string,
-    entityManager?: EntityManager
+    factionState?: string
   ): Promise<StationFaction> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<StationFaction> = entityManager.getRepository(StationFaction);
+    const repo: Repository<StationFaction> = this.queryService.getRepository(StationFaction);
 
     let stationFactionRecord: StationFaction | null = await repo.findOne({
       relations: { faction: true, factionState: true },
@@ -308,19 +247,15 @@ export default class DockService {
     });
 
     if (!stationFactionRecord) {
-      const factionRecord: Faction = await this.queryService.findOrCreateEntity(
-        Faction,
-        { factionName },
-        entityManager
-      );
+      const factionRecord: Faction = await this.queryService.findOrCreateEntity(Faction, {
+        factionName
+      });
 
       let factionStateRecord: FactionState | undefined;
       if (factionState)
-        factionStateRecord = await this.queryService.findOrCreateEntity(
-          FactionState,
-          { factionState },
-          entityManager
-        );
+        factionStateRecord = await this.queryService.findOrCreateEntity(FactionState, {
+          factionState
+        });
       stationFactionRecord = new StationFaction(factionRecord.id, factionStateRecord?.id);
       await repo.save(stationFactionRecord);
     } else if (
@@ -329,8 +264,7 @@ export default class DockService {
     ) {
       const factionStateRecord: FactionState = await this.queryService.findOrCreateEntity(
         FactionState,
-        { factionState },
-        entityManager
+        { factionState }
       );
       stationFactionRecord.factionStateId = factionStateRecord.id;
       await repo.save(stationFactionRecord);

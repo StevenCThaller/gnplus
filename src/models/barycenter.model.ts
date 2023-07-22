@@ -39,7 +39,7 @@ export default class Barycenter extends BaseEntity {
   private static getBasic(data: any): BarycenterParams {
     return {
       bodyId: data.BodyID,
-      system: StarSystem.convertScanBarycenter(data),
+      systemAddress: data.SystemAddress,
       ascendingNode: data.AscendingNode,
       meanAnomaly: data.MeanAnomaly
     };

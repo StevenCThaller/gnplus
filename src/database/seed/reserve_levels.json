@@ -1,0 +1,8 @@
+[
+  { "id": 1, "reserveLevel": "PristineReserves", "localisedEN": "Pristine" },
+  { "id": 2, "reserveLevel": "MajorReserves", "localisedEN": "Major" },
+  { "id": 3, "reserveLevel": "CommonReserves", "localisedEN": "Common" },
+  { "id": 4, "reserveLevel": "LowReserves", "localisedEN": "Low" },
+  { "id": 5, "reserveLevel": "DepletedReserves", "localisedEN": "Depleted" },
+  { "id": 6, "reserveLevel": "UnknownReserves", "localisedEN": "Unknown" }
+]

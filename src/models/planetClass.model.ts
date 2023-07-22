@@ -1,14 +1,8 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn
-} from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import PlanetaryBody from "./planetaryBody.model";
 
 @Entity("planet_classes")
-export default class PlanetClass extends BaseEntity {
+export default class PlanetClass {
   @PrimaryGeneratedColumn()
   public id?: number;
 

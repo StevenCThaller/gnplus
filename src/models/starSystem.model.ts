@@ -50,7 +50,7 @@ export default class StarSystem {
   @Column({ name: "system_coordinates_id", nullable: true })
   public systemCoordinatesId?: number;
   @ManyToOne(() => SystemCoordinates, (systemCoordinates) => systemCoordinates.system, {
-    cascade: ["insert"]
+    nullable: true
   })
   @JoinColumn({ name: "system_coordinates_id" })
   public systemCoordinates?: SystemCoordinates;
@@ -215,8 +215,7 @@ export default class StarSystem {
       systemPowers: data.Powers,
       systemConflicts: SystemConflict.convertFSDJump(data),
       // thargoidWar: data.ThargoidWar ? ThargoidWar.convertFSDJump(data) : undefined,
-      createdAt: new Date(data.timestamp),
-      updatedAt: new Date(data.timestamp)
+      timestamp: new Date(data.timestamp)
     };
   }
 
@@ -226,25 +225,24 @@ export default class StarSystem {
       systemAddress: data.SystemAddress,
       systemName: data.StarSystem,
       systemCoordinates: { x: data.StarPos[0], y: data.StarPos[1], z: data.StarPos[2] },
-      createdAt: new Date(data.timestamp),
-      updatedAt: new Date(data.timestamp)
+      timestamp: new Date(data.timestamp)
     };
   }
 
   constructor(
     systemAddress: number,
     starSystem: string,
-    systemCoordinatesId: number,
+    systemCoordinatesId: number | undefined,
     timestamp?: Date,
     population?: number
   ) {
     this.systemAddress = systemAddress;
     this.systemName = starSystem;
     this.systemCoordinatesId = systemCoordinatesId;
+    if (population != null) this.population = population;
     if (timestamp) {
       this.createdAt = timestamp;
       this.updatedAt = timestamp;
-      if (population != null) this.population = population;
     }
   }
 }

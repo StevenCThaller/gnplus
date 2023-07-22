@@ -16,13 +16,10 @@ import CelestialBody from "./celestialBody.model";
 
 @Entity("planetary_surface_details")
 @Index("surface_details_id", ["bodyId", "systemAddress"], { unique: true })
-export default class PlanetarySurfaceDetails extends BaseEntity {
-  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
-  public id?: number;
-
-  @Column({ name: "body_id", type: "smallint", unsigned: true })
+export default class PlanetarySurfaceDetails {
+  @PrimaryColumn({ name: "body_id", type: "smallint", unsigned: true })
   public bodyId?: number;
-  @Column({ name: "system_address", type: "bigint", unsigned: true })
+  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
   @Column({ name: "mass_em", type: "float" })
@@ -68,5 +65,25 @@ export default class PlanetarySurfaceDetails extends BaseEntity {
       terraformState: data.TerraformState,
       volcanism: data.Volcanism
     };
+  }
+
+  constructor(
+    bodyID: number,
+    systemAddress: number,
+    massEM: number,
+    tidalLock: boolean | "",
+    landable: boolean,
+    surfaceGravity: number,
+    surfacePressure: number,
+    surfaceTemperature: number
+  ) {
+    this.bodyId = bodyID;
+    this.systemAddress = systemAddress;
+    this.massEM = massEM;
+    this.tidalLock = tidalLock !== "" ? tidalLock : false;
+    this.landable = landable;
+    this.surfaceGravity = surfaceGravity;
+    this.surfacePressure = surfacePressure;
+    this.surfaceTemperature = surfaceTemperature;
   }
 }

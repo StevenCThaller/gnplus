@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -11,7 +12,7 @@ import Faction from "./faction.model";
 import SystemConflict from "./systemConflict.model";
 
 @Entity("conflict_factions")
-export default class ConflictFaction extends BaseEntity {
+export default class ConflictFaction {
   @PrimaryGeneratedColumn()
   public id?: number;
 
@@ -21,6 +22,7 @@ export default class ConflictFaction extends BaseEntity {
     unsigned: true,
     nullable: false
   })
+  @Index()
   public systemAddress?: number;
 
   @Column({ name: "stake" })
@@ -45,6 +47,7 @@ export default class ConflictFaction extends BaseEntity {
    * Many to One with Faction
    */
   @Column({ name: "faction_id" })
+  @Index()
   public factionId?: number;
   @ManyToOne(() => Faction, (faction) => faction.conflicts)
   @JoinColumn({ name: "faction_id" })
@@ -75,5 +78,15 @@ export default class ConflictFaction extends BaseEntity {
       stake: data.Stake,
       wonDays: data.WonDays
     };
+  }
+
+  /**
+   *
+   */
+  constructor(systemAddress: number, factionId: number, stake: string, wonDays: number) {
+    this.systemAddress = systemAddress;
+    this.factionId = factionId;
+    this.stake = stake;
+    this.wonDays = wonDays;
   }
 }

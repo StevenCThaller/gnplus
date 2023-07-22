@@ -28,12 +28,31 @@ export default class QueryService {
     return this.entityManager;
   }
 
-  public async transaction<T>(callback: (transaction: EntityManager) => Promise<T>): Promise<T> {
+  public getRepository<T extends ObjectLiteral>(entity: EntityTarget<T>): Repository<T> {
+    return this.entityManager.getRepository(entity);
+  }
+
+  public resetEntityManager(): void {
+    this.entityManager = AppDataSource.createEntityManager();
+  }
+
+  public async saveRecord<T extends ObjectLiteral>(
+    entity: EntityTarget<T>,
+    record: T
+  ): Promise<void> {
+    await this.getRepository(entity).save(record);
+  }
+
+  public async transaction<T>(callback: (...params: any) => Promise<T>): Promise<T> {
     return this.entityManager.transaction(async (transaction: EntityManager) => {
       try {
-        return await callback(transaction);
+        this.entityManager = transaction;
+        const result: T = await callback(transaction);
+        this.resetEntityManager();
+        return result;
       } catch (error) {
         this.logger.error("Transaction error: %o", error);
+        this.resetEntityManager();
         throw error;
       }
     });
@@ -42,25 +61,25 @@ export default class QueryService {
   public async findOrCreateEntity<T extends ObjectLiteral>(
     entity: EntityTarget<T>,
     findOptions: FindOptionsWhere<T>,
-    createOptions?: DeepPartial<T> | EntityManager,
-    entityManager?: EntityManager
+    createOptions?: DeepPartial<T> | boolean,
+    saveRecord?: boolean
   ): Promise<T> {
-    if (createOptions && entityManager) {
+    if (createOptions && typeof createOptions !== "boolean") {
       createOptions = createOptions as DeepPartial<T>;
-    } else if (!entityManager && hasOwnProperty(createOptions, "connection")) {
-      entityManager = createOptions as EntityManager;
+    } else if (!createOptions) {
       createOptions = findOptions as DeepPartial<T>;
-    } else if (!entityManager && !createOptions) {
-      entityManager = this.entityManager;
-      createOptions = findOptions as DeepPartial<T>;
-    } else if (!entityManager) entityManager = this.getEntityManager();
-    const repo: Repository<T> = entityManager.getRepository(entity);
+    }
+
+    if (saveRecord === undefined) saveRecord = true;
+
+    const repo: Repository<T> = this.getRepository(entity);
 
     let record: T | null = await repo.findOne({ where: findOptions });
 
     if (!record) {
       record = repo.create(createOptions as DeepPartial<T>);
-      await repo.save(record);
+
+      if (saveRecord) await repo.save(record);
     }
 
     return record;
@@ -105,53 +124,48 @@ export default class QueryService {
     return record;
   }
 
-  public async findOrCreateBaseStarSystem(
-    systemAddress: number,
-    starSystem: string,
-    systemCoordinates: number[],
-    timestamp: string,
-    entityManager?: EntityManager
-  ): Promise<StarSystem> {
-    if (!entityManager) entityManager = this.getEntityManager();
-    const repo: Repository<StarSystem> = entityManager.getRepository(StarSystem);
+  public async findOrInsertBaseStarSystem(params: BaseStarSystemParams): Promise<StarSystem> {
+    const repo: Repository<StarSystem> = this.entityManager.getRepository(StarSystem);
 
-    let record: StarSystem | null = await repo.findOne({ where: { systemAddress } });
+    let record: StarSystem | null = await repo.findOne({
+      where: { systemAddress: params.systemAddress }
+    });
 
-    if (!record) {
-      const systemCoordinatesRecord: SystemCoordinates = await this.findOrCreateSystemCoordinates(
-        systemCoordinates[0],
-        systemCoordinates[1],
-        systemCoordinates[2],
-        entityManager
-      );
+    if (record) return record;
 
-      record = new StarSystem(
-        systemAddress,
-        starSystem,
-        systemCoordinatesRecord.id as number,
-        new Date(timestamp)
-      );
-      await repo.save(record);
-    }
+    let systemCoordinatesId: number | undefined;
+    if (!this.isSystemCoordinatesIncorrect(params))
+      systemCoordinatesId = await this.findOrInsertSystemCoordinates(params.systemCoordinates);
+
+    record = new StarSystem(
+      params.systemAddress,
+      params.systemName,
+      systemCoordinatesId,
+      params.timestamp
+    );
+    await repo.save(record);
 
     return record;
   }
 
-  public async findOrCreateSystemCoordinates(
-    x: number,
-    y: number,
-    z: number,
-    entityManager?: EntityManager
-  ): Promise<SystemCoordinates> {
-    if (!entityManager) entityManager = this.getEntityManager();
-    const repo: Repository<SystemCoordinates> = entityManager.getRepository(SystemCoordinates);
+  private isSystemCoordinatesIncorrect(params: BaseStarSystemParams): boolean {
+    return (
+      params.systemName.toLowerCase() !== "sol" &&
+      params.systemCoordinates.x === 0 &&
+      params.systemCoordinates.y === 0 &&
+      params.systemCoordinates.z === 0
+    );
+  }
 
+  public async findOrInsertSystemCoordinates(params: SystemCoordinatesParams): Promise<number> {
+    const repo: Repository<SystemCoordinates> = this.getRepository(SystemCoordinates);
+    const { x, y, z } = params;
     let record: SystemCoordinates | null = await repo.findOne({ where: { x, y, z } });
-    if (!record) {
-      record = new SystemCoordinates(x, y, z);
-      await repo.save(record);
-    }
+    if (record) return record.id as number;
 
-    return record;
+    record = new SystemCoordinates(x, y, z);
+    await repo.save(record);
+
+    return record.id as number;
   }
 }

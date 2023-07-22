@@ -29,7 +29,6 @@ export { default as PlanetarySurfaceDetails } from "./planetarySurfaceDetails.mo
 export { default as PlanetAtmosphere } from "./planetAtmosphere.model";
 export { default as PlanetClass } from "./planetClass.model";
 export { default as PlanetComposition } from "./planetComposition.model";
-export { default as PlanetRing } from "./planetRing.model";
 export { default as Power } from "./power.model";
 export { default as PowerplayState } from "./powerplayState.model";
 export { default as PrimarySystemFaction } from "./primarySystemFaction.model";
@@ -42,6 +41,8 @@ export { default as RingedBody } from "./ringedBody.model";
 export { default as RotationParameters } from "./rotationParameters.model";
 export { default as SecurityLevel } from "./securityLevel.model";
 export { default as ServiceOffered } from "./serviceOffered.model";
+export { default as SignalType } from "./signalType.model";
+export { default as SignalOnPlanet } from "./signalOnPlanet.model";
 export { default as StarSystem } from "./starSystem.model";
 export { default as StarType } from "./starType.model";
 export { default as StarTypeCategory } from "./starTypeCategory.model";

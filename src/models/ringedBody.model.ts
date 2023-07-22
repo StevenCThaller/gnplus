@@ -1,28 +1,13 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn
-} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import ReserveLevel from "./reserveLevel.model";
-import PlanetRing from "./planetRing.model";
-import PlanetaryBody from "./planetaryBody.model";
 import Ring from "./ring.model";
+import CelestialBody from "./celestialBody.model";
 
 @Entity("ringed_bodies")
-@Index("ringed_body_idx", ["bodyId", "systemAddress"], { unique: true })
-export default class RingedBody extends BaseEntity {
-  @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
-  public id?: number;
-
-  @Column({ name: "body_id", type: "smallint", unsigned: true })
+export default class RingedBody {
+  @PrimaryColumn({ name: "body_id", type: "smallint", unsigned: true })
   public bodyId?: number;
-  @Column({ name: "system_address", type: "bigint", unsigned: true })
+  @PrimaryColumn({ name: "system_address", type: "bigint", unsigned: true })
   public systemAddress?: number;
 
   /**
@@ -36,22 +21,24 @@ export default class RingedBody extends BaseEntity {
   public reserves?: ReserveLevel;
 
   /**
-   * One to Many with Planet Ring -> the rings surrounding this
+   * One to Many with Celestial Body Ring -> the rings surrounding this
    * body
    */
-  @OneToMany(() => PlanetRing, (ring) => ring.ringedBody)
-  public rings?: PlanetRing[];
+  @OneToMany(() => Ring, (ring) => ring.ringedBody)
+  public rings?: Ring[];
 
-  @OneToOne(() => PlanetaryBody, (planetaryBody) => planetaryBody.ringedBody)
-  // @JoinColumn({
-  //   name: "body_id",
-  //   referencedColumnName: "bodyId"
-  // })
-  // @JoinColumn({
-  //   name: "system_address",
-  //   referencedColumnName: "systemAddress"
-  // })
-  public planet?: PlanetaryBody;
+  @OneToOne(() => CelestialBody, (celestialBody) => celestialBody.ringedBody)
+  @JoinColumn([
+    {
+      name: "body_id",
+      referencedColumnName: "bodyId"
+    },
+    {
+      name: "system_address",
+      referencedColumnName: "systemAddress"
+    }
+  ])
+  public celestialBody?: CelestialBody;
 
   /**
    * Timestamps
@@ -70,13 +57,23 @@ export default class RingedBody extends BaseEntity {
   })
   public updatedAt?: Date;
 
-  public static convertScan(data: PlanetScanData): RingedBodyParams | undefined {
+  public static convertScan(data: ScanData): RingedBodyParams | undefined {
     if (!data.Rings) return;
     return {
       bodyId: data.BodyID,
       systemAddress: data.SystemAddress,
       reserves: data.ReserveLevel,
-      rings: Ring.convertScan(data)
+      rings: Ring.convertScan(data),
+      timestamp: new Date(data.timestamp)
     };
+  }
+
+  constructor(params: RingedBodyParams) {
+    if (!params) return this;
+
+    this.bodyId = params.bodyId;
+    this.systemAddress = params.systemAddress;
+    this.createdAt = new Date(params.timestamp);
+    this.updatedAt = new Date(params.timestamp);
   }
 }

@@ -14,6 +14,7 @@ import Orbit from "./orbit.model";
 import Barycenter from "./barycenter.model";
 import RotationParameters from "./rotationParameters.model";
 import Ring from "./ring.model";
+import RingedBody from "./ringedBody.model";
 
 @Entity("celestial_bodies")
 @Index("celestial_body_id", ["bodyId", "systemAddress"], { unique: true })
@@ -103,6 +104,9 @@ export default class CelestialBody {
   })
   public rotationParameters?: RotationParameters;
 
+  @OneToOne(() => RingedBody, (ringedBody) => ringedBody.celestialBody)
+  public ringedBody?: RingedBody;
+
   /**
    * Timestamps
    */
@@ -146,6 +150,17 @@ export default class CelestialBody {
       createdAt: new Date(data.timestamp),
       updatedAt: new Date(data.timestamp)
     };
+  }
+
+  public static createFromScan(scanData: ScanData, bodyTypeId: number): CelestialBody {
+    return new CelestialBody(
+      scanData.BodyID,
+      scanData.SystemAddress,
+      scanData.BodyName,
+      scanData.DistanceFromArrivalLS,
+      bodyTypeId,
+      scanData.timestamp
+    );
   }
 
   constructor(

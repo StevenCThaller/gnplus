@@ -97,10 +97,17 @@ type SystemConflictParams = {
   updatedAt: Date;
 };
 
-type StarSystemParams = {
+type BaseStarSystemParams = {
   systemAddress: number;
   systemName: string;
   systemCoordinates: SystemCoordinatesParams;
+  timestamp: Date;
+};
+
+type StarSystemParams = BaseStarSystemParams & {
+  // systemAddress: number;
+  // systemName: string;
+  // systemCoordinates: SystemCoordinatesParams;
   systemEconomy?: SystemEconomyParams;
   primarySystemFaction?: PrimarySystemFactionParams;
   population?: number;
@@ -112,13 +119,11 @@ type StarSystemParams = {
   systemPowers?: string[];
   systemConflicts?: SystemConflictParams[];
   thargoidWar?: ThargoidWarParams;
-  createdAt?: Date;
-  updatedAt?: Date;
 };
 
 type BarycenterParams = {
   bodyId: number;
-  system: StarSystemParams;
+  systemAddress: number;
   ascendingNode: number;
   meanAnomaly: number;
 };
@@ -189,6 +194,7 @@ type RingedBodyParams = {
   systemAddress: number;
   reserves?: string;
   rings: RingParams[];
+  timestamp: Date;
 };
 
 type PlanetaryBodyParams = CelestialBodyParams & {

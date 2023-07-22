@@ -3,6 +3,9 @@ import QueryService from "./query.service";
 import { EntityManager, Repository } from "typeorm";
 import {
   Allegiance,
+  ConflictFaction,
+  ConflictStatus,
+  ConflictWarType,
   Economy,
   Faction,
   FactionState,
@@ -15,9 +18,12 @@ import {
   RecoveringState,
   SecurityLevel,
   StarSystem,
+  SystemConflict,
   SystemCoordinates,
   SystemEconomy,
-  SystemFaction
+  SystemFaction,
+  ThargoidWar,
+  ThargoidWarState
 } from "@models/index";
 import { Logger } from "winston";
 
@@ -32,8 +38,8 @@ export default class FSDJumpService {
   }
 
   public async updateOrCreateStarSystem(jumpData: FSDJumpData): Promise<void> {
-    return this.queryService.transaction(async (transaction: EntityManager): Promise<void> => {
-      const repo: Repository<StarSystem> = transaction.getRepository(StarSystem);
+    return this.queryService.transaction(async (): Promise<void> => {
+      const repo: Repository<StarSystem> = this.queryService.getRepository(StarSystem);
 
       let record: StarSystem | null = await repo.findOne({
         where: { systemAddress: jumpData.SystemAddress },
@@ -48,11 +54,11 @@ export default class FSDJumpService {
 
       if (!record) {
         const systemCoordinatesRecord: SystemCoordinates =
-          await this.queryService.findOrCreateEntity(
-            SystemCoordinates,
-            { x: jumpData.StarPos[0], y: jumpData.StarPos[1], z: jumpData.StarPos[2] },
-            transaction
-          );
+          await this.queryService.findOrCreateEntity(SystemCoordinates, {
+            x: jumpData.StarPos[0],
+            y: jumpData.StarPos[1],
+            z: jumpData.StarPos[2]
+          });
 
         record = new StarSystem(
           jumpData.SystemAddress,
@@ -66,31 +72,125 @@ export default class FSDJumpService {
       }
 
       await Promise.all([
-        this.upsertSystemAllegiance(record, jumpData.SystemAllegiance, transaction),
-        this.upsertSystemGovernment(record, jumpData.SystemGovernment, transaction),
-        this.upsertSystemSecurity(record, jumpData.SystemSecurity, transaction),
-        this.upsertSystemPowers(record, jumpData.Powers, transaction),
-        this.upsertSystemPowerplayState(record, jumpData.PowerplayState, transaction),
-        this.upsertSystemEconomies(
-          record,
-          jumpData.SystemEconomy,
-          jumpData.SystemSecondEconomy,
-          transaction
-        ),
-        this.upsertPrimarySystemFaction(record, jumpData.SystemFaction, transaction)
+        this.upsertSystemAllegiance(record, jumpData.SystemAllegiance),
+        this.upsertSystemGovernment(record, jumpData.SystemGovernment),
+        this.upsertSystemSecurity(record, jumpData.SystemSecurity),
+        this.upsertSystemPowers(record, jumpData.Powers),
+        this.upsertSystemPowerplayState(record, jumpData.PowerplayState),
+        this.upsertSystemEconomies(record, jumpData.SystemEconomy, jumpData.SystemSecondEconomy),
+        this.upsertPrimarySystemFaction(record, jumpData.SystemFaction)
       ]);
 
       await repo.save(record);
 
-      await Promise.all([this.upsertSystemFactions(record, jumpData.Factions, transaction)]);
+      await Promise.all([
+        this.upsertSystemFactions(record, jumpData.Factions),
+        this.upsertThargoidWar(record, jumpData.ThargoidWar)
+      ]);
+
       await repo.save(record);
+
+      await Promise.all([this.upsertSystemConflicts(record, jumpData.Conflicts)]);
     });
+  }
+
+  private async upsertSystemConflicts(
+    starSystem: StarSystem,
+    conflicts?: SystemConflictJump[]
+  ): Promise<void> {
+    if (!conflicts || conflicts.length === 0) {
+      starSystem.systemConflicts = [];
+      return;
+    }
+
+    const systemConflictRecords: SystemConflict[] = await Promise.all(
+      conflicts.map(
+        async (systemConflict: SystemConflictJump): Promise<SystemConflict> =>
+          await this.updateOrCreateSystemConflict(
+            starSystem.systemAddress as number,
+            systemConflict
+          )
+      )
+    );
+
+    starSystem.systemConflicts = systemConflictRecords;
+  }
+
+  private async updateOrCreateSystemConflict(
+    systemAddress: number,
+    conflict: SystemConflictJump
+  ): Promise<SystemConflict> {
+    const factionOneRecord: ConflictFaction = await this.updateOrCreateConflictFaction(
+      systemAddress,
+      conflict.Faction1
+    );
+    const factionTwoRecord: ConflictFaction = await this.updateOrCreateConflictFaction(
+      systemAddress,
+      conflict.Faction2
+    );
+    const conflictStatusRecord: ConflictStatus = await this.queryService.findOrCreateEntity(
+      ConflictStatus,
+      { conflictStatus: conflict.Status }
+    );
+    const warTypeRecord: ConflictWarType = await this.queryService.findOrCreateEntity(
+      ConflictWarType,
+      { warType: conflict.WarType }
+    );
+
+    const repo: Repository<SystemConflict> = this.queryService.getRepository(SystemConflict);
+    let record: SystemConflict | null = await repo.findOne({
+      where: { factionOneId: factionOneRecord.id, factionTwoId: factionTwoRecord.id, systemAddress }
+    });
+
+    if (!record) {
+      record = new SystemConflict(
+        systemAddress,
+        factionOneRecord.id as number,
+        factionTwoRecord.id as number,
+        conflictStatusRecord.id as number,
+        warTypeRecord.id as number
+      );
+    } else {
+      record.conflictStatusId = conflictStatusRecord.id;
+      record.warTypeId = warTypeRecord.id;
+    }
+
+    await repo.save(record);
+    return record;
+  }
+
+  private async updateOrCreateConflictFaction(
+    systemAddress: number,
+    conflictFaction: ConflictFactionJump
+  ): Promise<ConflictFaction> {
+    const factionRecord: Faction = await this.queryService.findOrCreateEntity(Faction, {
+      factionName: conflictFaction.Name
+    });
+
+    const repo: Repository<ConflictFaction> = this.queryService.getRepository(ConflictFaction);
+    let record: ConflictFaction | null = await repo.findOne({
+      where: { systemAddress, factionId: factionRecord.id }
+    });
+
+    if (!record) {
+      record = new ConflictFaction(
+        systemAddress,
+        factionRecord.id,
+        conflictFaction.Stake,
+        conflictFaction.WonDays
+      );
+    } else {
+      record.wonDays = conflictFaction.WonDays;
+      record.stake = conflictFaction.Stake;
+    }
+
+    await repo.save(record);
+    return record;
   }
 
   private async upsertSystemFactions(
     starSystem: StarSystem,
-    factions?: SystemFactionJump[],
-    entityManager?: EntityManager
+    factions?: SystemFactionJump[]
   ): Promise<void> {
     if (!factions || factions.length === 0) {
       starSystem.systemFactions = [];
@@ -100,39 +200,83 @@ export default class FSDJumpService {
     const systemFactionRecords: SystemFaction[] = await Promise.all(
       factions.map(
         async (systemFaction: SystemFactionJump): Promise<SystemFaction> =>
-          await this.findOrCreateSystemFaction(
-            starSystem.systemAddress as number,
-            systemFaction,
-            entityManager
-          )
+          await this.findOrCreateSystemFaction(starSystem.systemAddress as number, systemFaction)
       )
     );
 
     starSystem.systemFactions = systemFactionRecords;
   }
 
+  private async upsertThargoidWar(
+    starSystem: StarSystem,
+    thargoidWar?: ThargoidWarJump
+  ): Promise<void> {
+    if (!thargoidWar) {
+      starSystem.thargoidWar = undefined;
+      return;
+    }
+    const repo: Repository<ThargoidWar> = this.queryService.getRepository(ThargoidWar);
+
+    let record: ThargoidWar | null = await repo.findOne({
+      where: { systemAddress: starSystem.systemAddress }
+    });
+
+    if (!record) {
+      record = new ThargoidWar(
+        starSystem.systemAddress as number,
+        thargoidWar.RemainingPorts,
+        thargoidWar.WarProgress,
+        thargoidWar.SuccessStateReached,
+        thargoidWar.EstimatedRemainingTime,
+        starSystem.updatedAt
+      );
+    } else {
+      record.updatedAt = starSystem.updatedAt;
+    }
+
+    let currentStateRecord: ThargoidWarState | undefined;
+    if (thargoidWar.CurrentState)
+      currentStateRecord = await this.queryService.findOrCreateEntity(ThargoidWarState, {
+        warState: thargoidWar.CurrentState
+      });
+
+    let nextStateFailureRecord: ThargoidWarState | undefined;
+    if (thargoidWar.NextStateFailure)
+      nextStateFailureRecord = await this.queryService.findOrCreateEntity(ThargoidWarState, {
+        warState: thargoidWar.NextStateFailure
+      });
+
+    let nextStateSuccessRecord: ThargoidWarState | undefined;
+    if (thargoidWar.NextStateSuccess)
+      nextStateSuccessRecord = await this.queryService.findOrCreateEntity(ThargoidWarState, {
+        warState: thargoidWar.NextStateSuccess
+      });
+
+    record.currentStateId = currentStateRecord?.id;
+    record.nextStateFailureId = nextStateFailureRecord?.id;
+    record.nextStateSuccessId = nextStateSuccessRecord?.id;
+
+    await repo.save(record);
+  }
+
   private async upsertPrimarySystemFaction(
     starSystem: StarSystem,
-    systemFaction?: PrimarySystemFactionJump,
-    entityManager?: EntityManager
+    systemFaction?: PrimarySystemFactionJump
   ): Promise<void> {
     if (!systemFaction) return;
 
     await this.findOrCreatePrimarySystemFaction(
       starSystem.systemAddress as number,
       systemFaction.Name,
-      systemFaction.FactionState,
-      entityManager
+      systemFaction.FactionState
     );
   }
 
   private async findOrCreateSystemFaction(
     systemAddress: number,
-    systemFaction: SystemFactionJump,
-    entityManager?: EntityManager
+    systemFaction: SystemFactionJump
   ): Promise<SystemFaction> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const repo: Repository<SystemFaction> = entityManager.getRepository(SystemFaction);
+    const repo: Repository<SystemFaction> = this.queryService.getRepository(SystemFaction);
 
     const {
       Name: factionName,
@@ -146,29 +290,22 @@ export default class FSDJumpService {
       Influence: influence
     } = systemFaction;
 
-    const factionRecord: Faction = await this.queryService.findOrCreateEntity(
-      Faction,
-      { factionName },
-      entityManager
-    );
+    const factionRecord: Faction = await this.queryService.findOrCreateEntity(Faction, {
+      factionName
+    });
     const happinessLevelRecord: HappinessLevel = await this.queryService.findOrCreateEntity(
       HappinessLevel,
-      { happinessLevel },
-      entityManager
+      { happinessLevel }
     );
-    const governmentRecord: Government = await this.queryService.findOrCreateEntity(
-      Government,
-      { government: `$government_${government};` },
-      entityManager
-    );
-    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(
-      Allegiance,
-      { allegiance },
-      entityManager
-    );
+    const governmentRecord: Government = await this.queryService.findOrCreateEntity(Government, {
+      government: `$government_${government};`
+    });
+    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(Allegiance, {
+      allegiance
+    });
     const factionStateRecord: FactionState | undefined = !factionState
       ? undefined
-      : await this.queryService.findOrCreateEntity(FactionState, { factionState }, entityManager);
+      : await this.queryService.findOrCreateEntity(FactionState, { factionState });
 
     let record: SystemFaction | null = await repo.findOne({
       where: {
@@ -194,9 +331,9 @@ export default class FSDJumpService {
       );
     }
     await Promise.all([
-      this.upsertActiveStates(record, activeStates, entityManager),
-      this.upsertPendingStates(record, pendingStates, entityManager),
-      this.upsertRecoveringStates(record, recoveringStates, entityManager)
+      this.upsertActiveStates(record, activeStates),
+      this.upsertPendingStates(record, pendingStates),
+      this.upsertRecoveringStates(record, recoveringStates)
     ]);
     await repo.save(record);
 
@@ -205,8 +342,7 @@ export default class FSDJumpService {
 
   private async upsertRecoveringStates(
     systemFaction: SystemFaction,
-    recoveringStates?: TrendingStateJump[],
-    entityManager?: EntityManager
+    recoveringStates?: TrendingStateJump[]
   ): Promise<void> {
     if (!recoveringStates || recoveringStates.length === 0) {
       systemFaction.recoveringStates = [];
@@ -216,11 +352,7 @@ export default class FSDJumpService {
     const recoveringStateRecords: RecoveringState[] = await Promise.all(
       recoveringStates.map(
         async (recoveringState: TrendingStateJump): Promise<RecoveringState> =>
-          await this.findOrCreateRecoveringState(
-            recoveringState.State,
-            recoveringState.Trend,
-            entityManager
-          )
+          await this.findOrCreateRecoveringState(recoveringState.State, recoveringState.Trend)
       )
     );
 
@@ -229,8 +361,7 @@ export default class FSDJumpService {
 
   private async upsertPendingStates(
     systemFaction: SystemFaction,
-    pendingStates?: TrendingStateJump[],
-    entityManager?: EntityManager
+    pendingStates?: TrendingStateJump[]
   ): Promise<void> {
     if (!pendingStates || pendingStates.length === 0) {
       systemFaction.pendingStates = [];
@@ -240,7 +371,7 @@ export default class FSDJumpService {
     const pendingStateRecords: PendingState[] = await Promise.all(
       pendingStates.map(
         async (pendingState: TrendingStateJump): Promise<PendingState> =>
-          await this.findOrCreatePendingState(pendingState.State, pendingState.Trend, entityManager)
+          await this.findOrCreatePendingState(pendingState.State, pendingState.Trend)
       )
     );
 
@@ -249,44 +380,35 @@ export default class FSDJumpService {
 
   private async findOrCreateRecoveringState(
     factionState: string,
-    trend: number,
-    entityManager?: EntityManager
+    trend: number
   ): Promise<PendingState> {
     const factionStateRecord: FactionState = await this.queryService.findOrCreateEntity(
       FactionState,
-      { factionState },
-      entityManager
+      { factionState }
     );
-    return await this.queryService.findOrCreateEntity(
-      RecoveringState,
-      { factionStateId: factionStateRecord.id, trend },
-      entityManager
-    );
+    return await this.queryService.findOrCreateEntity(RecoveringState, {
+      factionStateId: factionStateRecord.id,
+      trend
+    });
   }
 
   private async findOrCreatePendingState(
     factionState: string,
-    trend: number,
-    entityManager?: EntityManager
+    trend: number
   ): Promise<PendingState> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-
     const factionStateRecord: FactionState = await this.queryService.findOrCreateEntity(
       FactionState,
-      { factionState },
-      entityManager
+      { factionState }
     );
-    return await this.queryService.findOrCreateEntity(
-      PendingState,
-      { factionStateId: factionStateRecord.id, trend },
-      entityManager
-    );
+    return await this.queryService.findOrCreateEntity(PendingState, {
+      factionStateId: factionStateRecord.id,
+      trend
+    });
   }
 
   private async upsertActiveStates(
     systemFaction: SystemFaction,
-    activeStates?: ActiveStateJump[],
-    entityManager?: EntityManager
+    activeStates?: ActiveStateJump[]
   ): Promise<void> {
     if (!activeStates || activeStates.length === 0) {
       systemFaction.activeStates = [];
@@ -296,11 +418,9 @@ export default class FSDJumpService {
     const activeStateRecords: FactionState[] = await Promise.all(
       activeStates.map(
         async (activeState: ActiveStateJump): Promise<FactionState> =>
-          await this.queryService.findOrCreateEntity(
-            FactionState,
-            { factionState: activeState.State },
-            entityManager
-          )
+          await this.queryService.findOrCreateEntity(FactionState, {
+            factionState: activeState.State
+          })
       )
     );
 
@@ -310,25 +430,19 @@ export default class FSDJumpService {
   private async findOrCreatePrimarySystemFaction(
     systemAddress: number,
     factionName: string,
-    factionState?: string,
-    entityManager?: EntityManager
+    factionState?: string
   ): Promise<PrimarySystemFaction> {
-    if (!entityManager) entityManager = this.queryService.getEntityManager();
-    const factionRecord: Faction = await this.queryService.findOrCreateEntity(
-      Faction,
-      { factionName },
-      entityManager
-    );
+    const factionRecord: Faction = await this.queryService.findOrCreateEntity(Faction, {
+      factionName
+    });
     let factionStateRecord: FactionState | undefined;
     if (factionState)
-      factionStateRecord = await this.queryService.findOrCreateEntity(
-        FactionState,
-        { factionState },
-        entityManager
-      );
+      factionStateRecord = await this.queryService.findOrCreateEntity(FactionState, {
+        factionState
+      });
 
     const repo: Repository<PrimarySystemFaction> =
-      entityManager.getRepository(PrimarySystemFaction);
+      this.queryService.getRepository(PrimarySystemFaction);
 
     let record: PrimarySystemFaction | null = await repo.findOne({ where: { systemAddress } });
 
@@ -344,28 +458,22 @@ export default class FSDJumpService {
   private async upsertSystemEconomies(
     starSystem: StarSystem,
     primaryEconomy?: string,
-    secondaryEconomy?: string,
-    entityManager?: EntityManager
+    secondaryEconomy?: string
   ): Promise<void> {
     if (!primaryEconomy) return;
 
-    const primaryEconomyRecord: Economy = await this.queryService.findOrCreateEntity(
-      Economy,
-      { economyName: primaryEconomy },
-      entityManager
-    );
+    const primaryEconomyRecord: Economy = await this.queryService.findOrCreateEntity(Economy, {
+      economyName: primaryEconomy
+    });
     let secondaryEconomyRecord: Economy | undefined;
     if (secondaryEconomy)
-      secondaryEconomyRecord = await this.queryService.findOrCreateEntity(
-        Economy,
-        { economyName: secondaryEconomy },
-        entityManager
-      );
+      secondaryEconomyRecord = await this.queryService.findOrCreateEntity(Economy, {
+        economyName: secondaryEconomy
+      });
 
     const systemEconomyRecord: SystemEconomy = await this.queryService.findOrCreateEntity(
       SystemEconomy,
-      { primaryEconomyId: primaryEconomyRecord.id, secondaryEconomyId: secondaryEconomyRecord?.id },
-      entityManager
+      { primaryEconomyId: primaryEconomyRecord.id, secondaryEconomyId: secondaryEconomyRecord?.id }
     );
 
     starSystem.systemEconomyId = systemEconomyRecord.id;
@@ -373,31 +481,25 @@ export default class FSDJumpService {
 
   private async upsertSystemPowerplayState(
     starSystem: StarSystem,
-    powerplayState?: string,
-    entityManager?: EntityManager
+    powerplayState?: string
   ): Promise<void> {
     if (!powerplayState) return;
 
     const powerplayStateRecord: PowerplayState = await this.queryService.findOrCreateEntity(
       PowerplayState,
-      { powerplayState },
-      entityManager
+      { powerplayState }
     );
 
     starSystem.powerplayStateId = powerplayStateRecord.id;
   }
 
-  private async upsertSystemPowers(
-    starSystem: StarSystem,
-    systemPowers?: string[],
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertSystemPowers(starSystem: StarSystem, systemPowers?: string[]): Promise<void> {
     if (!systemPowers || systemPowers.length === 0) return;
 
     const powerRecords: Power[] = await Promise.all(
       systemPowers.map(
         (powerName: string): Promise<Power> =>
-          this.queryService.findOrCreateEntity(Power, { powerName }, entityManager)
+          this.queryService.findOrCreateEntity(Power, { powerName })
       )
     );
     starSystem.systemPowers = [
@@ -413,45 +515,31 @@ export default class FSDJumpService {
 
   private async upsertSystemSecurity(
     starSystem: StarSystem,
-    securityLevel?: string,
-    entityManager?: EntityManager
+    securityLevel?: string
   ): Promise<void> {
     if (!securityLevel) return;
 
     const securityLevelRecord: SecurityLevel = await this.queryService.findOrCreateEntity(
       SecurityLevel,
-      { securityLevel },
-      entityManager
+      { securityLevel }
     );
     starSystem.securityLevelId = securityLevelRecord.id;
   }
 
-  private async upsertSystemAllegiance(
-    starSystem: StarSystem,
-    allegiance?: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertSystemAllegiance(starSystem: StarSystem, allegiance?: string): Promise<void> {
     if (!allegiance) return;
-    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(
-      Allegiance,
-      { allegiance },
-      entityManager
-    );
+    const allegianceRecord: Allegiance = await this.queryService.findOrCreateEntity(Allegiance, {
+      allegiance
+    });
     starSystem.allegianceId = allegianceRecord.id;
   }
 
-  private async upsertSystemGovernment(
-    starSystem: StarSystem,
-    government?: string,
-    entityManager?: EntityManager
-  ): Promise<void> {
+  private async upsertSystemGovernment(starSystem: StarSystem, government?: string): Promise<void> {
     if (!government) return;
 
-    const governmentRecord: Government = await this.queryService.findOrCreateEntity(
-      Government,
-      { government },
-      entityManager
-    );
+    const governmentRecord: Government = await this.queryService.findOrCreateEntity(Government, {
+      government
+    });
     starSystem.governmentId = governmentRecord.id;
   }
 }

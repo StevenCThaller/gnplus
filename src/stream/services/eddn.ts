@@ -7,9 +7,13 @@ import { DataSource } from "typeorm";
 import MarketService from "@services/market.service";
 import FSDJumpService from "@services/fsdjump.service";
 import DockService from "@services/dock.service";
+import ScanService from "@services/scan.service";
+import fs from "fs";
+import path from "path";
 
 @Service()
 export default class StreamService {
+  private events: { [event: string]: any } = {};
   /**
    *
    */
@@ -43,15 +47,33 @@ export default class StreamService {
     }
   }
 
+  private addEvent(event: string, data: any): void {
+    if (!this.events[event]) {
+      this.events[event] = data;
+    } else {
+      this.events[event] = { ...this.events[event], ...data };
+    }
+    this.saveEvents();
+  }
+
+  private saveEvents(): void {
+    const filePath = path.join(__dirname, "..", "..", "..", "eventData", "all_events.json");
+    fs.writeFile(filePath, JSON.stringify(this.events), (err: any) => {
+      if (err) this.logger.error("nu");
+    });
+  }
+
   public async listen(socket: Subscriber): Promise<void> {
     // await Container.get(MarketService).getCurrentMarket(128004608);
 
     for await (const [src] of socket) {
       // this.logger.info("Event at %o", new Date());
       const [event, data] = this.extractDataFromSocketSource(src);
+      this.addEvent(event, data);
       try {
         switch (event) {
           case "FSSDiscoveryScan": {
+            // this.logger.info("FSS DISCOVERY: %o", data);
             break;
           }
           case "SAASignalsFound": {
@@ -86,14 +108,32 @@ export default class StreamService {
             break;
           }
           case "Scan": {
-            // await this.handleScan(data);
+            console.time("Scan Event\t");
+            await Container.get(ScanService).updateOrInsertCelestialBody(data);
+            console.timeEnd("Scan Event\t");
             break;
           }
           case "ScanBaryCentre": {
             // await this.handleScanBarycenter(data);
             break;
           }
+          case "FSSSignalDiscovered": {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // if (data.signals.every((signal: any): boolean => !signal.IsStation))
+            //   this.logger.info("FSS Signal Discovered: %o", data);
+            break;
+          }
+          case "FSSAllBodiesFound": {
+            this.logger.info("FSS ALL BODIES FOUND: %o", data);
+            break;
+          }
+          case "FSSBodySignals": {
+            this.logger.info("FSS BODY SIGNALS: %o", data);
+            break;
+          }
           default:
+            this.logger.info("NON HANDLED EVENT: %s", event);
+
             // this.logger.info("EVENT: %s", event);
             break;
         }

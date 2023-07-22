@@ -2,15 +2,16 @@ import {
   BaseEntity,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn
 } from "typeorm";
 import RingClass from "./ringClass.model";
-import CelestialBody from "./celestialBody.model";
+import RingedBody from "./ringedBody.model";
 
 @Entity("rings")
+@Index(["bodyId", "systemAddress"], { unique: false })
 export default class Ring extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id?: number;
@@ -23,7 +24,8 @@ export default class Ring extends BaseEntity {
   /**
    * Ring's name
    */
-  @Column({ name: "ring_name", unique: true })
+  @Column({ name: "ring_name" })
+  @Index({ unique: true })
   public ringName?: string;
 
   /**
@@ -41,6 +43,15 @@ export default class Ring extends BaseEntity {
   @ManyToOne(() => RingClass, (ringClass) => ringClass.rings)
   @JoinColumn({ name: "ring_class_id" })
   public ringClass?: RingClass;
+
+  @ManyToOne(() => RingedBody, (ringedBody) => ringedBody.rings, {
+    createForeignKeyConstraints: false
+  })
+  @JoinColumn([
+    { name: "body_id", referencedColumnName: "bodyId" },
+    { name: "system_address", referencedColumnName: "systemAddress" }
+  ])
+  public ringedBody?: RingedBody;
 
   public static convertScan(data: ScanData): RingParams[] {
     if (!data.Rings) return [];

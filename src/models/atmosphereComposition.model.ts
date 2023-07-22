@@ -1,8 +1,17 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from "typeorm";
 import PlanetAtmosphere from "./planetAtmosphere.model";
 import AtmosphereType from "./atmosphereType.model";
 
 @Entity("atmosphere_compositions")
+@Index(["atmosphereTypeId", "planetAtmosphereId"], { unique: true })
 export default class AtmosphereComposition extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "bigint", unsigned: true })
   public id?: number;

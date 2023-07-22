@@ -1,19 +1,27 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  BaseEntity,
-  OneToOne
-} from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
 import ThargoidWarState from "./thargoidWarState.model";
 import StarSystem from "./starSystem.model";
 
 @Entity("thargoid_wars")
-export default class ThargoidWar extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  public id?: number;
+export default class ThargoidWar {
+  constructor(
+    systemAddress: number,
+    remainingPorts: number,
+    warProgress: number,
+    successStateReached: boolean,
+    estimatedRemainingTime?: string,
+    timestamp?: Date
+  ) {
+    this.systemAddress = systemAddress;
+    this.remainingPorts = remainingPorts;
+    this.warProgress = warProgress;
+    this.successStateReached = successStateReached;
+    this.estimatedRemainingTime = estimatedRemainingTime;
+    if (timestamp) {
+      this.createdAt = timestamp;
+      this.updatedAt = timestamp;
+    }
+  }
 
   @Column({ name: "remaining_ports" })
   public remainingPorts?: number;
@@ -30,12 +38,10 @@ export default class ThargoidWar extends BaseEntity {
   /**
    * One to One with Star System
    */
-  @Column({
+  @PrimaryColumn({
     name: "system_address",
     type: "bigint",
-    unsigned: true,
-    unique: true,
-    nullable: true
+    unsigned: true
   })
   public systemAddress?: number;
   @OneToOne(() => StarSystem, (starSystem) => starSystem.thargoidWar, {
