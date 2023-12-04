@@ -16,7 +16,7 @@ import PlanetarySurfaceDetails from "./planetarySurfaceDetails.model";
 import PlanetComposition from "./planetComposition.model";
 // import RingedBody from "./ringedBody.model";
 import CelestialBody from "./celestialBody.model";
-import SignalOnPlanet from "./signalOnPlanet.model";
+// import SignalOnPlanet from "./signalOnPlanet.model";
 
 @Entity("planetary_bodies")
 @Index(["bodyId", "systemAddress"], { unique: true })
@@ -85,8 +85,8 @@ export default class PlanetaryBody {
   ])
   public body?: CelestialBody;
 
-  @OneToMany(() => SignalOnPlanet, (signal) => signal.planet)
-  public signals?: SignalOnPlanet[];
+  // @OneToMany(() => SignalOnPlanet, (signal) => signal.planet)
+  // public signals?: SignalOnPlanet[];
 
   @OneToMany(() => SurfaceMaterial, (surfaceMaterial) => surfaceMaterial.planet)
   public surfaceMaterials?: SurfaceMaterial[];

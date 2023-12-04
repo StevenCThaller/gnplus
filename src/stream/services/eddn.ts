@@ -10,6 +10,7 @@ import DockService from "@services/dock.service";
 import ScanService from "@services/scan.service";
 import fs from "fs";
 import path from "path";
+import OutfittingService from "@services/outfitting.service";
 
 @Service()
 export default class StreamService {
@@ -81,9 +82,9 @@ export default class StreamService {
             break;
           }
           case "commodity": {
-            console.time("Commodity Event\t");
+            // console.time("Commodity Event\t");
             await Container.get(MarketService).updateOrCreateMarket(data);
-            console.timeEnd("Commodity Event\t");
+            // console.timeEnd("Commodity Event\t");
 
             break;
           }
@@ -93,24 +94,24 @@ export default class StreamService {
           }
           case "Docked": {
             // await this.handleDockedEvent(data);
-            console.time("Docked Event\t");
+            // console.time("Docked Event\t");
             await Container.get(DockService).updateOrCreateStation(data);
-            console.timeEnd("Docked Event\t");
+            // console.timeEnd("Docked Event\t");
 
             break;
           }
           case "FSDJump": {
             // await this.handleFSDJumpEvent(data);
-            console.time("FSDJump Event\t");
+            // console.time("FSDJump Event\t");
             await Container.get(FSDJumpService).updateOrCreateStarSystem(data);
-            console.timeEnd("FSDJump Event\t");
+            // console.timeEnd("FSDJump Event\t");
 
             break;
           }
           case "Scan": {
-            console.time("Scan Event\t");
+            // console.time("Scan Event\t");
             await Container.get(ScanService).updateOrInsertCelestialBody(data);
-            console.timeEnd("Scan Event\t");
+            // console.timeEnd("Scan Event\t");
             break;
           }
           case "ScanBaryCentre": {
@@ -124,15 +125,20 @@ export default class StreamService {
             break;
           }
           case "FSSAllBodiesFound": {
-            this.logger.info("FSS ALL BODIES FOUND: %o", data);
+            // this.logger.info("FSS ALL BODIES FOUND: %o", data);
             break;
           }
           case "FSSBodySignals": {
-            this.logger.info("FSS BODY SIGNALS: %o", data);
+            // this.logger.info("FSS BODY SIGNALS: %o", data);
+            break;
+          }
+          case "outfitting": {
+            console.log("OUTFITTING: ", data);
+            await Container.get(OutfittingService).updateOrCreateShipModules(data);
             break;
           }
           default:
-            this.logger.info("NON HANDLED EVENT: %s", event);
+            // this.logger.info("NON HANDLED EVENT: %s", event);
 
             // this.logger.info("EVENT: %s", event);
             break;

@@ -19,7 +19,7 @@ export default class FSSScanService {
     });
   }
 
-  private async findOrCreatePlanetaryBodyBasic(planetData: any): Promise<PlanetaryBody> {
-    const { bodyId, systemAddress } = planetData;
-  }
+  // private async findOrCreatePlanetaryBodyBasic(planetData: any): Promise<PlanetaryBody> {
+  //   const { bodyId, systemAddress } = planetData;
+  // }
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import Station from "./station.model";
 import SystemFaction from "./systemFaction.model";
 import StarSystem from "./starSystem.model";
