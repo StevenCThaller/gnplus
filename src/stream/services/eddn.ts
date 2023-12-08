@@ -68,23 +68,18 @@ export default class StreamService {
     // await Container.get(MarketService).getCurrentMarket(128004608);
 
     for await (const [src] of socket) {
-      // this.logger.info("Event at %o", new Date());
       const [event, data] = this.extractDataFromSocketSource(src);
       this.addEvent(event, data);
       try {
         switch (event) {
           case "FSSDiscoveryScan": {
-            // this.logger.info("FSS DISCOVERY: %o", data);
             break;
           }
           case "SAASignalsFound": {
-            // this.logger.info("SAA Signals Found: %o", data);
             break;
           }
           case "commodity": {
-            // console.time("Commodity Event\t");
             await Container.get(MarketService).updateOrCreateMarket(data);
-            // console.timeEnd("Commodity Event\t");
 
             break;
           }
@@ -93,25 +88,17 @@ export default class StreamService {
             break;
           }
           case "Docked": {
-            // await this.handleDockedEvent(data);
-            // console.time("Docked Event\t");
             await Container.get(DockService).updateOrCreateStation(data);
-            // console.timeEnd("Docked Event\t");
 
             break;
           }
           case "FSDJump": {
-            // await this.handleFSDJumpEvent(data);
-            // console.time("FSDJump Event\t");
             await Container.get(FSDJumpService).updateOrCreateStarSystem(data);
-            // console.timeEnd("FSDJump Event\t");
 
             break;
           }
           case "Scan": {
-            // console.time("Scan Event\t");
             await Container.get(ScanService).updateOrInsertCelestialBody(data);
-            // console.timeEnd("Scan Event\t");
             break;
           }
           case "ScanBaryCentre": {
@@ -125,15 +112,12 @@ export default class StreamService {
             break;
           }
           case "FSSAllBodiesFound": {
-            // this.logger.info("FSS ALL BODIES FOUND: %o", data);
             break;
           }
           case "FSSBodySignals": {
-            // this.logger.info("FSS BODY SIGNALS: %o", data);
             break;
           }
           case "outfitting": {
-            console.log("OUTFITTING: ", data);
             await Container.get(OutfittingService).updateOrCreateShipModules(data);
             break;
           }
