@@ -23,8 +23,9 @@ export default {
     username: process.env.SQL_USER as string,
     password: ((): string => {
       if (process.env.DB_CONNECTION_STYLE === "rds_iam") {
+        const awsConf = new AWS.Config();
         const signer = new AWS.RDS.Signer({
-          region: new AWS.Config().region,
+          region: awsConf.region,
           hostname: process.env.SQL_HOST,
           port: Number(process.env.SQL_PORT),
           username: process.env.SQL_USER
