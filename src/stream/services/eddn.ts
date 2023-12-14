@@ -80,7 +80,7 @@ export default class StreamService {
           }
           case "commodity": {
             await Container.get(MarketService).updateOrCreateMarket(data);
-
+            this.logger.info("COMMODITY EVENT: %o", data);
             break;
           }
           case "Location": {
