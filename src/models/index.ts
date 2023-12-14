@@ -8,6 +8,7 @@ export { default as BeltCluster } from "./beltCluster.model";
 export { default as BodyType } from "./bodyType.model";
 export { default as CelestialBody } from "./celestialBody.model";
 export { default as Commodity } from "./commodity.model";
+export { default as CommodityCategory } from "./commodityCategory.model";
 export { default as ConflictFaction } from "./conflictFaction.model";
 export { default as ConflictStatus } from "./conflictStatus.model";
 export { default as ConflictWarType } from "./conflictWarType.model";

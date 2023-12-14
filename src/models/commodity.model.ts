@@ -1,7 +1,16 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn
+} from "typeorm";
 import StatusFlag from "./statusFlag.model";
 import MarketPrice from "./marketPrice.model";
 import CurrentMarketPrice from "./currentMarketPrice.model";
+import CommodityCategory from "./commodityCategory.model";
 
 @Entity("commodities")
 export default class Commodity {
@@ -31,6 +40,9 @@ export default class Commodity {
   constructor(commodity: string) {
     this.commodity = commodity;
   }
+
+  @ManyToOne(() => CommodityCategory, (commodityCategory) => commodityCategory.commodities)
+  public category?: CommodityCategory;
 
   public static convertCommodityEvent(data: CommodityData): CommodityParams {
     return {

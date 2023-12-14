@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import AWS from "aws-sdk";
 import path from "path";
 
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
@@ -20,7 +21,18 @@ export default {
   sql: {
     database: process.env.SQL_DB_NAME as string,
     username: process.env.SQL_USER as string,
-    password: process.env.SQL_PASS as string,
+    password: ((): string => {
+      if (process.env.DB_CONNECTION_STYLE === "rds_iam") {
+        const signer = new AWS.RDS.Signer({
+          region: new AWS.Config().region,
+          hostname: process.env.SQL_HOST,
+          port: Number(process.env.SQL_PORT),
+          username: process.env.SQL_USER
+        });
+        return signer.getAuthToken({});
+      }
+      return process.env.SQL_PASS as string;
+    })(),
     host: process.env.SQL_HOST as string,
     port: Number(process.env.SQL_PORT || 0) as number,
     poolSize: Number(process.env.SQL_POOL_LIMIT || 0) as number,
