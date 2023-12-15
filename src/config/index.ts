@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-import AWS from "aws-sdk";
-import path from "path";
 
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 

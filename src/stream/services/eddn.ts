@@ -69,7 +69,9 @@ export default class StreamService {
 
     for await (const [src] of socket) {
       const [event, data] = this.extractDataFromSocketSource(src);
-      this.addEvent(event, data);
+      if (process.env.NODE_ENV !== "production") {
+        this.addEvent(event, data);
+      }
       try {
         switch (event) {
           case "FSSDiscoveryScan": {
